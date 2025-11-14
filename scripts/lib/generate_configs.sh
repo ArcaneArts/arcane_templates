@@ -94,11 +94,53 @@ generate_firestore_rules() {
 
     cat > config/firestore.rules << 'EOF'
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Default rule - customize as needed
+    function isAuth(){
+      return request.auth != null;
+    }
+
+    function getCapabilities(){
+      return get(/databases/$(database)/documents/user/$(request.auth.uid)/data/capabilities).data;
+    }
+
+    function isAdmin(){
+      let d = getCapabilities();
+      return isAuth() && d.administrator == true;
+    }
+
+    function isUser(id){
+      return (isAuth() && request.auth.uid == id) || isAdmin();
+    }
+
+    // Default deny all
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read,write: if false;
+    }
+
+    // Server commands
+    match /command/{command} {
+      allow create: if isAuth() && isUser(request.resource.data.user);
+
+      match /response/{response} {
+        allow read: if isAuth() && isUser(resource.data.user);
+      }
+    }
+
+    // User documents
+    match /user/{user} {
+      allow read,update: if isAdmin();
+      allow read,create: if isUser(user);
+
+      match /data/settings {
+        allow read,write: if isUser(user);
+      }
+
+      match /data/capabilities {
+        allow read: if isUser(user);
+        allow write: if isAdmin();
+      }
     }
   }
 }
@@ -129,10 +171,18 @@ generate_storage_rules() {
 
     cat > config/storage.rules << 'EOF'
 rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
+    // Default deny all
     match /{allPaths=**} {
-      allow read, write: if request.auth != null;
+      allow read,write: if false;
+    }
+
+    // User files - users can only access their own files
+    match /users/{userId}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }

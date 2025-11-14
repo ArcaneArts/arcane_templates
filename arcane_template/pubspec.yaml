@@ -98,5 +98,22 @@ flutter_launcher_icons:
     generate: true
 
 scripts:
-  pod_install_mac: cd macos && rm Podfile.lock && pod install --repo-update
-  pod_install_ios: c
+  # Firebase Deployment
+  deploy_firebase: cd .. && firebase deploy
+  deploy_firestore: cd .. && firebase deploy --only firestore
+  deploy_storage: cd .. && firebase deploy --only storage
+  deploy_hosting: cd .. && firebase deploy --only hosting:release
+  deploy_hosting_beta: cd .. && firebase deploy --only hosting:beta
+
+  # Build & Deploy Web
+  build_web: flutter build web --release
+  deploy_web: flutter build web --release && cd .. && firebase deploy --only hosting:release
+
+  # Asset Generation
+  gen_icons: dart run flutter_launcher_icons
+  gen_splash: dart run flutter_native_splash:create
+  gen_assets: dart run flutter_launcher_icons && dart run flutter_native_splash:create
+
+  # Platform Setup
+  pod_install_ios: cd ios && rm -f Podfile.lock && pod install --repo-update && cd ..
+  pod_install_macos: cd macos && rm -f Podfile.lock && pod install --repo-update && cd ..
