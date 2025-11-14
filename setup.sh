@@ -131,7 +131,7 @@ main() {
 
     # Step 6: Create projects
     print_header "Step 6: Creating Projects"
-    create_all_projects "$APP_NAME" "$ORG_DOMAIN" || exit 1
+    create_all_projects "$APP_NAME" "$ORG_DOMAIN" "$PLATFORMS" || exit 1
 
     # Step 6.5: Copy models and server templates
     print_header "Step 6.5: Copying Models & Server Templates"
@@ -224,25 +224,35 @@ gather_project_info() {
     log_info "Select template:"
     log_instruction "1) arcane_template (no navigation framework)"
     log_instruction "2) arcane_beamer (with Beamer navigation)"
+    log_instruction "3) arcane_dock (system tray/menu bar app - desktop only)"
     echo ""
 
     local template_choice
-    read -p "$(echo -e ${CYAN}❯${NC}) Enter choice [1-2] (default: 1): " template_choice
+    read -p "$(echo -e ${CYAN}❯${NC}) Enter choice [1-3] (default: 1): " template_choice
     template_choice="${template_choice:-1}"
 
     case "$template_choice" in
         1)
             TEMPLATE_DIR="$SCRIPT_DIR/arcane_template"
             TEMPLATE_NAME="arcane_template"
+            PLATFORMS="android,ios,web,linux,windows,macos"
             ;;
         2)
             TEMPLATE_DIR="$SCRIPT_DIR/arcane_beamer"
             TEMPLATE_NAME="arcane_beamer"
+            PLATFORMS="android,ios,web,linux,windows,macos"
+            ;;
+        3)
+            TEMPLATE_DIR="$SCRIPT_DIR/arcane_dock"
+            TEMPLATE_NAME="arcane_dock"
+            PLATFORMS="linux,windows,macos"
+            log_info "Note: arcane_dock is desktop-only (macOS, Linux, Windows)"
             ;;
         *)
             log_warning "Invalid choice, using arcane_template"
             TEMPLATE_DIR="$SCRIPT_DIR/arcane_template"
             TEMPLATE_NAME="arcane_template"
+            PLATFORMS="android,ios,web,linux,windows,macos"
             ;;
     esac
 
@@ -389,6 +399,7 @@ show_configuration_summary() {
     log_instruction "  App Name: $APP_NAME"
     log_instruction "  Base Class: $BASE_CLASS_NAME"
     log_instruction "  Template: $TEMPLATE_NAME"
+    log_instruction "  Platforms: $PLATFORMS"
     echo ""
 
     log_info "Projects to be created:"
@@ -426,6 +437,7 @@ ORG_DOMAIN=$ORG_DOMAIN
 BASE_CLASS_NAME=$BASE_CLASS_NAME
 TEMPLATE_DIR=$TEMPLATE_DIR
 TEMPLATE_NAME=$TEMPLATE_NAME
+PLATFORMS=$PLATFORMS
 USE_FIREBASE=$USE_FIREBASE
 FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID
 SETUP_CLOUD_RUN=$SETUP_CLOUD_RUN

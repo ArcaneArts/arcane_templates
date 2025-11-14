@@ -69,6 +69,31 @@ Best for apps with complex navigation, deep linking, or web-first design.
 
 [View Template →](arcane_beamer/)
 
+### 3. arcane_dock
+**Arcane UI + System Tray/Menu Bar Integration**
+
+Perfect for desktop applications that live in the system tray/menu bar.
+
+**Features:**
+- Everything in arcane_template, plus:
+- System tray icon integration (macOS, Linux, Windows)
+- Popup window on tray click
+- Auto-hide on blur
+- Launch at startup support
+- Frameless, transparent window
+- Desktop platforms only (macOS, Linux, Windows)
+
+**Use Cases:**
+- System utilities and monitoring tools
+- Background services with UI
+- Always-available dashboards
+- Menu bar applications
+- Quick-access tools
+
+**Note:** Requires platform-specific setup after flutter create. See [arcane_dock/PLATFORM_SETUP.md](arcane_dock/PLATFORM_SETUP.md).
+
+[View Template →](arcane_dock/)
+
 ---
 
 ## 🎯 What's Included

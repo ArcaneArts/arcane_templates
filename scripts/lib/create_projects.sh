@@ -10,6 +10,7 @@ source "$LIB_DIR/utils.sh"
 create_client_app() {
     local app_name="$1"
     local org="$2"
+    local platforms="${3:-android,ios,web,linux,windows,macos}"
 
     log_step "Creating Client App: $app_name"
 
@@ -22,8 +23,9 @@ create_client_app() {
     fi
 
     echo ""
+    log_info "Creating app with platforms: $platforms"
     retry_command "Create client app" flutter create \
-        --platforms=android,ios,web,linux,windows,macos \
+        --platforms="$platforms" \
         -a java \
         -t app \
         --suppress-analytics \
@@ -151,6 +153,7 @@ link_models_to_projects() {
 create_all_projects() {
     local app_name="$1"
     local org="$2"
+    local platforms="${3:-android,ios,web,linux,windows,macos}"
 
     log_info "Current directory: $(pwd)"
     log_info "Projects will be created as:"
@@ -165,7 +168,7 @@ create_all_projects() {
     fi
 
     # Create client app
-    create_client_app "$app_name" "$org" || return 1
+    create_client_app "$app_name" "$org" "$platforms" || return 1
 
     # Create models package
     create_models_package "$app_name" || return 1
