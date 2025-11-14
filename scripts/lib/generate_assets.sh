@@ -73,17 +73,21 @@ generate_splash_screens() {
 
 configure_platform_versions() {
     local app_name="$1"
+    local script_root="${BASH_SOURCE[0]}"
+
+    # Find the repository root by going up from this script location
+    local repo_root="$(cd "$(dirname "$script_root")/../../" && pwd)"
 
     log_step "Configuring Platform Versions"
 
     log_info "Setting Android minSDK to 23..."
-    ./scripts/set_android_min_sdk.sh "$app_name" 23 || log_warning "Failed to set Android minSDK"
+    bash "$repo_root/scripts/set_android_min_sdk.sh" "$app_name" 23 || log_warning "Failed to set Android minSDK"
 
     log_info "Setting iOS deployment target to 13.0..."
-    ./scripts/set_ios_platform_version.sh "$app_name" 13.0 || log_warning "Failed to set iOS version"
+    bash "$repo_root/scripts/set_ios_platform_version.sh" "$app_name" 13.0 || log_warning "Failed to set iOS version"
 
     log_info "Setting macOS deployment target to 10.15..."
-    ./scripts/set_macos_platform_version.sh "$app_name" 10.15 || log_warning "Failed to set macOS version"
+    bash "$repo_root/scripts/set_macos_platform_version.sh" "$app_name" 10.15 || log_warning "Failed to set macOS version"
 
     log_success "Platform versions configured"
     return 0

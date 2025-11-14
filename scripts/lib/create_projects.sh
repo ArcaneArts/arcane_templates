@@ -124,24 +124,53 @@ link_models_to_projects() {
     # Add models dependency to client app
     log_info "Adding models dependency to $app_name..."
 
-    cat >> "$app_name/pubspec.yaml" << EOF
+    # Find the line number where dependencies: section ends (before dev_dependencies or flutter section)
+    local insert_line=$(grep -n "^dev_dependencies:" "$app_name/pubspec.yaml" | cut -d: -f1)
+    if [ -z "$insert_line" ]; then
+        # If no dev_dependencies, insert before flutter section
+        insert_line=$(grep -n "^flutter:" "$app_name/pubspec.yaml" | cut -d: -f1)
+    fi
 
-  $models_name:
+    if [ -n "$insert_line" ]; then
+        # Insert before the found line
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "${insert_line}i\\
+\\
+  $models_name:\\
     path: ../$models_name
-EOF
-
-    log_success "Added models dependency to client app"
+" "$app_name/pubspec.yaml"
+        else
+            sed -i "${insert_line}i\\\\n  $models_name:\\n    path: ../$models_name" "$app_name/pubspec.yaml"
+        fi
+        log_success "Added models dependency to client app"
+    else
+        log_error "Could not find insertion point in pubspec.yaml"
+        return 1
+    fi
 
     # Add models dependency to server app
     log_info "Adding models dependency to $server_name..."
 
-    cat >> "$server_name/pubspec.yaml" << EOF
+    insert_line=$(grep -n "^dev_dependencies:" "$server_name/pubspec.yaml" | cut -d: -f1)
+    if [ -z "$insert_line" ]; then
+        insert_line=$(grep -n "^flutter:" "$server_name/pubspec.yaml" | cut -d: -f1)
+    fi
 
-  $models_name:
+    if [ -n "$insert_line" ]; then
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "${insert_line}i\\
+\\
+  $models_name:\\
     path: ../$models_name
-EOF
-
-    log_success "Added models dependency to server app"
+" "$server_name/pubspec.yaml"
+        else
+            sed -i "${insert_line}i\\\\n  $models_name:\\n    path: ../$models_name" "$server_name/pubspec.yaml"
+        fi
+        log_success "Added models dependency to server app"
+    else
+        log_error "Could not find insertion point in pubspec.yaml"
+        return 1
+    fi
 
     return 0
 }

@@ -203,6 +203,14 @@ flutter_launcher_icons:
 EOF
 
     log_success "pubspec.yaml updated with asset configuration"
+
+    # Run flutter pub get to update dependencies with new config
+    log_info "Running flutter pub get to apply changes..."
+    cd "$app_name" || return 1
+    flutter pub get > /dev/null 2>&1
+    cd .. || return 1
+    log_success "Dependencies updated"
+
     return 0
 }
 

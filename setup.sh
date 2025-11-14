@@ -266,26 +266,57 @@ configure_firebase_options() {
             FIREBASE_PROJECT_ID
 
         echo ""
+        # Create config/keys directory BEFORE telling user where to put the file
+        ensure_directory "config/keys"
+        local absolute_keys_path="$(cd config/keys && pwd)"
+
         log_instruction "You'll need to create a Google Cloud service account:"
         log_instruction "1. Go to: https://console.cloud.google.com/iam-admin/serviceaccounts/create?project=$FIREBASE_PROJECT_ID"
         log_instruction "2. Service account name: ${FIREBASE_PROJECT_ID}-server"
         log_instruction "3. Add role: Basic > Owner"
         log_instruction "4. Create and download JSON key"
-        log_instruction "5. Save the JSON file to: config/keys/"
+        echo ""
+        log_instruction "5. Save the downloaded JSON file to this directory:"
+        log_success "   $absolute_keys_path"
         echo ""
 
-        if confirm "Have you created and downloaded the service account key?"; then
-            # Check if key exists
-            ensure_directory "config/keys"
-            local key_count=$(find config/keys -name "*.json" -type f 2>/dev/null | wc -l)
-
-            if [ "$key_count" -eq 0 ]; then
-                log_warning "No JSON key files found in config/keys/"
-                log_instruction "Please add your service account key to config/keys/ before proceeding"
-                press_enter
-            else
-                log_success "Service account key found"
+        # Offer to open the directory for easier access
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            if confirm "Open this folder in Finder now?"; then
+                open "$absolute_keys_path"
+                log_success "Opened in Finder"
+                echo ""
             fi
+        elif command_exists "xdg-open"; then
+            if confirm "Open this folder in file manager now?"; then
+                xdg-open "$absolute_keys_path" 2>/dev/null &
+                log_success "Opened in file manager"
+                echo ""
+            fi
+        fi
+
+        if confirm "Have you created and downloaded the service account key?"; then
+            # Keep checking until key is found
+            local key_found=false
+            while [ "$key_found" = false ]; do
+                local key_count=$(find config/keys -name "*.json" -type f 2>/dev/null | wc -l)
+
+                if [ "$key_count" -eq 0 ]; then
+                    log_warning "No JSON key files found in: $absolute_keys_path"
+                    log_instruction "Please add your service account key to the directory above"
+                    echo ""
+                    if confirm "Have you added the key file?"; then
+                        # Will check again in next loop iteration
+                        continue
+                    else
+                        log_info "Skipping service account key verification (you can add it later)"
+                        break
+                    fi
+                else
+                    log_success "Service account key found: $(find config/keys -name "*.json" -type f | head -n 1)"
+                    key_found=true
+                fi
+            done
         fi
 
         echo ""

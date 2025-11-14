@@ -200,7 +200,8 @@ file_exists() {
 # Convert snake_case to PascalCase
 snake_to_pascal() {
     local input="$1"
-    echo "$input" | sed -r 's/(^|_)([a-z])/\U\2/g'
+    # Split by underscore and capitalize first letter of each word
+    echo "$input" | awk -F_ '{for(i=1;i<=NF;i++){$i=toupper(substr($i,1,1)) substr($i,2)}}1' OFS=''
 }
 
 # Save configuration to file
