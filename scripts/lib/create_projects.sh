@@ -6,6 +6,43 @@
 # Source utilities
 LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$LIB_DIR/utils.sh"
+source "$LIB_DIR/generate_banner.sh"
+
+# Add ASCII banner to a Dart file
+# Args: $1 - file path
+#       $2 - banner text (e.g., "MY_APP")
+#       $3 - description text
+add_banner_to_file() {
+    local file_path="$1"
+    local banner_text="$2"
+    local description="$3"
+
+    if [ ! -f "$file_path" ]; then
+        log_warning "File not found: $file_path"
+        return 1
+    fi
+
+    # Generate the banner
+    local banner=$(generate_banner "$banner_text" "//")
+
+    # Create temp file with banner + original content
+    local temp_file="${file_path}.banner_tmp"
+
+    # Write banner
+    echo "$banner" > "$temp_file"
+    echo "//" >> "$temp_file"
+    echo "// $description" >> "$temp_file"
+    echo "" >> "$temp_file"
+
+    # Append original file content
+    cat "$file_path" >> "$temp_file"
+
+    # Replace original with new file
+    mv "$temp_file" "$file_path"
+
+    log_success "Added banner to $(basename "$file_path")"
+    return 0
+}
 
 create_client_app() {
     local app_name="$1"
@@ -280,6 +317,32 @@ copy_template_files() {
             fi
         fi
     done
+
+    # Add ASCII banner to main.dart
+    if [ -f "$app_name/lib/main.dart" ]; then
+        log_info "Adding ASCII banner to client app..."
+        local banner_text=$(echo "$app_name" | tr '[:lower:]' '[:upper:]')
+
+        # Determine the template type and set appropriate description
+        local description=""
+        case "$template_name" in
+            arcane_template)
+                description="Pure Arcane UI application - Multi-platform support"
+                ;;
+            arcane_beamer)
+                description="Arcane UI with Beamer navigation - Multi-platform with routing"
+                ;;
+            arcane_dock)
+                description="Desktop system tray application - macOS, Linux, Windows"
+                banner_text="$banner_text DOCK"
+                ;;
+            *)
+                description="Flutter application with Arcane UI"
+                ;;
+        esac
+
+        add_banner_to_file "$app_name/lib/main.dart" "$banner_text" "$description"
+    fi
 
     log_success "Template files copied successfully"
     return 0

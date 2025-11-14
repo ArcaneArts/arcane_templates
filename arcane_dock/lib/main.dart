@@ -9,14 +9,9 @@ import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// Global Hive boxes for persistent storage
 late Box box;
 late Box boxSettings;
-
-/// Package information
 late PackageInfo packageInfo;
-
-/// Application configuration path
 late String configPath;
 
 void main() async {
@@ -29,110 +24,62 @@ void main() async {
   }
 }
 
-/// Initialize all app dependencies and configurations
 Future<void> _initializeApp() async {
-  // Setup debugging and Flutter binding
   lDebugMode = true;
   setupArcaneDebug();
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize app directories and logging
   await _setupDirectoriesAndLogging();
-
-  // Initialize app settings and state
   await _setupAppSettings();
-
-  // Log successful initialization
-  success("Arcane Dock initialized successfully");
-  success("=====================================");
+  success("Arcane Dock initialized");
 }
 
-/// Set up application directories and logging configuration
 Future<void> _setupDirectoriesAndLogging() async {
-  // Set up app directory
   final Directory appDocDir = await getApplicationDocumentsDirectory();
   configPath = "${appDocDir.path}/ArcaneDock";
   await Directory(configPath).create(recursive: true);
-  info("App directory: $configPath");
-
-  // Configure logging with file rotation
   await _setupLogging();
 }
 
-/// Set up log file with rotation
+/// Rotates log file if > 1MB
 Future<void> _setupLogging() async {
   final File logFile = File("$configPath/arcane_dock.log");
-
-  // Rotate log file if too large (1MB limit)
-  if (await logFile.exists()) {
-    final int fileSize = await logFile.length();
-    if (fileSize > 1024 * 1024) {
-      await logFile.delete();
-      verbose("Log file rotated (exceeded 1MB)");
-    }
+  if (await logFile.exists() && await logFile.length() > 1024 * 1024) {
+    await logFile.delete();
   }
-
-  // Configure log handler to write to file
   final IOSink logSink = logFile.openWrite(mode: FileMode.writeOnlyAppend);
   lLogHandler = (LogCategory category, String message) {
     logSink.writeln("${category.name}: $message");
   };
 }
 
-/// Set up application settings, database, and startup configuration
 Future<void> _setupAppSettings() async {
-  verbose("Getting package info");
   final Future<PackageInfo> packageInfoFuture = PackageInfo.fromPlatform();
-
-  // Initialize Hive database
   await Hive.initFlutter(configPath);
-  verbose("Opening Hive boxes");
-
-  // Open main data box (unencrypted for simplicity)
   box = await Hive.openBox("data");
-
-  // Open settings box
-  verbose("Opening settings box");
   boxSettings = await Hive.openBox("settings");
-
-  // Initialize window manager and tray
-  verbose("Initializing window manager");
   await WindowManager.init();
-
-  // Configure startup settings
   await _configureStartup(packageInfoFuture);
 }
 
-/// Configure application startup behavior
 Future<void> _configureStartup(Future<PackageInfo> packageInfoFuture) async {
-  // Wait for package info
-  verbose("Waiting for PackageInfo");
   await packageInfoFuture.then((value) {
     packageInfo = value;
-    verbose("PackageInfo: ${packageInfo.version}");
-    verbose("Configuring launch at startup");
-
-    // Set up launch at startup
     launchAtStartup.setup(
       appName: packageInfo.appName,
       appPath: Platform.resolvedExecutable,
     );
   });
 
-  // Apply autolaunch setting
-  verbose("Checking if autolaunch is enabled");
-  final bool autolaunchEnabled = boxSettings.get("autolaunch", defaultValue: false);
-
+  final bool autolaunchEnabled =
+      boxSettings.get("autolaunch", defaultValue: false);
   if (autolaunchEnabled) {
     await launchAtStartup.enable();
-    verbose("Autolaunch enabled");
   } else {
     await launchAtStartup.disable();
-    verbose("Autolaunch disabled");
   }
 }
 
-/// Main application widget
+/// Root app widget. Displays in tray popup (see WindowManager)
 class ArcaneDock extends StatefulWidget {
   const ArcaneDock({super.key});
 
@@ -143,15 +90,15 @@ class ArcaneDock extends StatefulWidget {
 class _ArcaneDockState extends State<ArcaneDock> {
   @override
   Widget build(BuildContext context) => ArcaneApp(
-    debugShowCheckedModeBanner: false,
-    title: 'Arcane Dock',
-    theme: ArcaneTheme(
-      themeMode: ThemeMode.system,
-      scheme: ContrastedColorScheme(
-        dark: ColorSchemes.darkDefaultColor,
-        light: ColorSchemes.lightDefaultColor,
-      ),
-    ),
-    home: const DockScreen(),
-  );
+        debugShowCheckedModeBanner: false,
+        title: 'Arcane Dock',
+        theme: ArcaneTheme(
+          themeMode: ThemeMode.system,
+          scheme: ContrastedColorScheme(
+            dark: ColorSchemes.darkDefaultColor,
+            light: ColorSchemes.lightDefaultColor,
+          ),
+        ),
+        home: const DockScreen(),
+      );
 }

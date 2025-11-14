@@ -1,20 +1,11 @@
 import 'package:arcane_template/screens/home_screen.dart';
 import 'package:arcane/arcane.dart';
 
-//  █████╗ ██████╗  ██████╗ █████╗ ███╗   ██╗███████╗    ████████╗███████╗███╗   ███╗██████╗ ██╗      █████╗ ████████╗███████╗
-// ██╔══██╗██╔══██╗██╔════╝██╔══██╗████╗  ██║██╔════╝    ╚══██╔══╝██╔════╝████╗ ████║██╔══██╗██║     ██╔══██╗╚══██╔══╝██╔════╝
-// ███████║██████╔╝██║     ███████║██╔██╗ ██║█████╗         ██║   █████╗  ██╔████╔██║██████╔╝██║     ███████║   ██║   █████╗
-// ██╔══██║██╔══██╗██║     ██╔══██║██║╚██╗██║██╔══╝         ██║   ██╔══╝  ██║╚██╔╝██║██╔═══╝ ██║     ██╔══██║   ██║   ██╔══╝
-// ██║  ██║██║  ██║╚██████╗██║  ██║██║ ╚████║███████╗       ██║   ███████╗██║ ╚═╝ ██║██║     ███████╗██║  ██║   ██║   ███████╗
-// ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝       ╚═╝   ╚══════╝╚═╝     ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝
-//
-// A minimal template project for building apps with ARCANE styling.
-// No Material Design - pure Arcane components only.
-
 void main() {
   runApp("arcane_template", const ArcaneTemplateApp());
 }
 
+/// Root app widget with theme management. Cycles: light → dark → system
 class ArcaneTemplateApp extends StatefulWidget {
   const ArcaneTemplateApp({super.key});
 
@@ -40,7 +31,6 @@ class _ArcaneTemplateAppState extends State<ArcaneTemplateApp> {
     return ArcaneApp(
       debugShowCheckedModeBanner: false,
       theme: ArcaneTheme(
-        // You can customize the color scheme here
         scheme: ContrastedColorScheme(
           light: ColorSchemes.blue(ThemeMode.light),
           dark: ColorSchemes.blue(ThemeMode.dark),
@@ -52,7 +42,7 @@ class _ArcaneTemplateAppState extends State<ArcaneTemplateApp> {
   }
 }
 
-/// Extension to provide easy access to theme mode toggle
+/// Access theme controls: context.toggleTheme() or context.currentThemeMode
 extension ArcaneTemplateAppContext on BuildContext {
   void toggleTheme() {
     final state = findAncestorStateOfType<_ArcaneTemplateAppState>();

@@ -6,6 +6,43 @@
 # Source utilities
 LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$LIB_DIR/utils.sh"
+source "$LIB_DIR/generate_banner.sh"
+
+# Add ASCII banner to a Dart file
+# Args: $1 - file path
+#       $2 - banner text (e.g., "MY_APP MODELS")
+#       $3 - description text
+add_banner_to_file() {
+    local file_path="$1"
+    local banner_text="$2"
+    local description="$3"
+
+    if [ ! -f "$file_path" ]; then
+        log_warning "File not found: $file_path"
+        return 1
+    fi
+
+    # Generate the banner
+    local banner=$(generate_banner "$banner_text" "//")
+
+    # Create temp file with banner + original content
+    local temp_file="${file_path}.banner_tmp"
+
+    # Write banner
+    echo "$banner" > "$temp_file"
+    echo "//" >> "$temp_file"
+    echo "// $description" >> "$temp_file"
+    echo "" >> "$temp_file"
+
+    # Append original file content
+    cat "$file_path" >> "$temp_file"
+
+    # Replace original with new file
+    mv "$temp_file" "$file_path"
+
+    log_success "Added banner to $(basename "$file_path")"
+    return 0
+}
 
 copy_models_template() {
     local app_name="$1"
@@ -47,6 +84,12 @@ copy_models_template() {
     if [ -f "$models_name/lib/APPNAME_models.dart" ]; then
         mv "$models_name/lib/APPNAME_models.dart" "$models_name/lib/${models_name}.dart"
     fi
+
+    # Add ASCII banner to main library file
+    log_info "Adding ASCII banner to models library..."
+    local banner_text=$(echo "$app_name" | tr '[:lower:]' '[:upper:]')
+    add_banner_to_file "$models_name/lib/${models_name}.dart" "$banner_text MODELS" \
+        "Shared data models for $app_name - Used by both client and server"
 
     log_success "Models template copied and customized"
     return 0
@@ -127,6 +170,12 @@ copy_server_template() {
     local class_name=$(snake_to_pascal "$app_name")
     find "$server_name" -type f -name "*.dart" -exec \
         sed -i.bak "s/APPNAMEServer/${class_name}Server/g" {} \; -exec rm {}.bak \;
+
+    # Add ASCII banner to main server file
+    log_info "Adding ASCII banner to server main.dart..."
+    local banner_text=$(echo "$app_name" | tr '[:lower:]' '[:upper:]')
+    add_banner_to_file "$server_name/lib/main.dart" "$banner_text SERVER" \
+        "Backend server for $app_name - REST API with Firebase integration"
 
     log_success "Server template copied and customized"
     return 0

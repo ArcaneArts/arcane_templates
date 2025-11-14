@@ -2,23 +2,12 @@ import 'package:arcane_beamer/routes.dart';
 import 'package:arcane/arcane.dart';
 import 'package:beamer/beamer.dart';
 
-//  █████╗ ██████╗  ██████╗ █████╗ ███╗   ██╗███████╗    ██████╗ ███████╗ █████╗ ███╗   ███╗███████╗██████╗
-// ██╔══██╗██╔══██╗██╔════╝██╔══██╗████╗  ██║██╔════╝    ██╔══██╗██╔════╝██╔══██╗████╗ ████║██╔════╝██╔══██╗
-// ███████║██████╔╝██║     ███████║██╔██╗ ██║█████╗      ██████╔╝█████╗  ███████║██╔████╔██║█████╗  ██████╔╝
-// ██╔══██║██╔══██╗██║     ██╔══██║██║╚██╗██║██╔══╝      ██╔══██╗██╔══╝  ██╔══██║██║╚██╔╝██║██╔══╝  ██╔══██╗
-// ██║  ██║██║  ██║╚██████╗██║  ██║██║ ╚████║███████╗    ██████╔╝███████╗██║  ██║██║ ╚═╝ ██║███████╗██║  ██║
-// ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝    ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝
-//
-// A demo/template project showcasing ARCANE styling with Beamer navigation.
-// No Material Design is used - pure Arcane components only.
-
 void main() {
-  // Set Beamer to use path URL strategy (for web - removes the # from URLs)
   Beamer.setPathUrlStrategy();
-
   runApp("arcane_beamer", const ArcaneBeamerApp());
 }
 
+/// Root app with Beamer routing and theme management. Routes in lib/routes.dart
 class ArcaneBeamerApp extends StatefulWidget {
   const ArcaneBeamerApp({super.key});
 
@@ -46,7 +35,6 @@ class _ArcaneBeamerAppState extends State<ArcaneBeamerApp> {
       routerDelegate: routerDelegate,
       debugShowCheckedModeBanner: false,
       theme: ArcaneTheme(
-        // You can customize the color scheme here
         scheme: ContrastedColorScheme(
           light: ColorSchemes.blue(ThemeMode.light),
           dark: ColorSchemes.blue(ThemeMode.dark),
@@ -57,7 +45,7 @@ class _ArcaneBeamerAppState extends State<ArcaneBeamerApp> {
   }
 }
 
-/// Extension to provide easy access to theme mode toggle
+/// Access theme controls: context.toggleTheme() or context.currentThemeMode
 extension ArcaneBeamerAppContext on BuildContext {
   void toggleTheme() {
     final state = findAncestorStateOfType<_ArcaneBeamerAppState>();

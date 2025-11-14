@@ -12,7 +12,7 @@ Run the interactive setup wizard:
 
 The wizard creates a complete 3-project architecture: client app, shared models package, and backend server.
 
-## Available Templates
+## Available Templates 
 
 ### arcane_template
 Pure Arcane UI with multi-platform support. Best for apps with simple navigation or custom routing.

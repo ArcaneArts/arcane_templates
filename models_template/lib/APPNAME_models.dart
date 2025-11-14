@@ -11,6 +11,7 @@ import 'package:APPNAME_models/gen/artifacts.gen.dart';
 export 'package:APPNAME_models/gen/artifacts.gen.dart';
 export 'package:APPNAME_models/gen/crud.gen.dart';
 
+/// Register FireCrud models. Call before Firestore operations
 void registerCrud() => $crud
   ..setupArtifact($artifactFromMap, $artifactToMap, $constructArtifact)
   ..registerModels([
@@ -18,28 +19,29 @@ void registerCrud() => $crud
     FireModel<ServerCommand>.artifact("command"),
   ]);
 
+/// Standard models - generates toMap(), fromMap(), copyWith()
 const model = Artifact(
   generateSchema: false,
   reflection: false,
   compression: true,
 );
 
+/// Server-only models (same as @model)
 const server = Artifact(
   generateSchema: false,
   reflection: false,
   compression: true,
 );
 
+/// Models with reflection enabled (larger bundle size)
 const reflect = Artifact(
   generateSchema: false,
   reflection: true,
   compression: true,
 );
 
-// ============================================================================
-// User Model
-// ============================================================================
-
+/// User model. Stored at users/{uid}
+/// Child: UserSettings at users/{uid}/data/settings
 @model
 class User with ModelCrud {
   final String name;
@@ -61,6 +63,7 @@ class User with ModelCrud {
       ];
 }
 
+/// User settings. Singleton at users/{uid}/data/settings
 @model
 class UserSettings with ModelCrud {
   final ThemeMode themeMode;
@@ -78,10 +81,8 @@ enum ThemeMode {
   system,
 }
 
-// ============================================================================
-// Server Command & Response Models
-// ============================================================================
-
+/// Server command. Stored at commands/{commandId}
+/// Child: ServerResponse at commands/{commandId}/response/response
 @server
 class ServerCommand with ModelCrud {
   final String user;
@@ -97,6 +98,7 @@ class ServerCommand with ModelCrud {
       ];
 }
 
+/// Base response. Singleton at commands/{commandId}/response/response
 @server
 class ServerResponse with ModelCrud {
   final String user;
@@ -119,10 +121,8 @@ class ResponseError extends ServerResponse {
   ResponseError({required super.user, required this.message});
 }
 
-// ============================================================================
-// Server Signature (for authentication)
-// ============================================================================
-
+/// Client auth signature for API requests. Prevents replay attacks
+/// Usage: APPNAMEServerSignature.newSignature()
 @model
 class APPNAMEServerSignature {
   final String signature;
@@ -136,6 +136,8 @@ class APPNAMEServerSignature {
   });
 
   static String? _sessionId;
+
+  /// Session ID (generated once per app instance)
   static String get sessionId {
     if (_sessionId == null) {
       Random r = Random();
@@ -143,10 +145,10 @@ class APPNAMEServerSignature {
         List.generate(128, (i) => r.nextInt(256)).toList(),
       );
     }
-
     return _sessionId!;
   }
 
+  /// SHA256 hash: "signature:session@time"
   String get hash =>
       sha256.convert(utf8.encode("$signature:$session@$time")).toString();
 
@@ -157,6 +159,7 @@ class APPNAMEServerSignature {
     );
   }
 
+  /// Create new signature with current timestamp
   static APPNAMEServerSignature newSignature() => APPNAMEServerSignature(
         signature: randomSignature,
         session: sessionId,
