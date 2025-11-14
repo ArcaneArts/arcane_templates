@@ -56,6 +56,7 @@ copy_server_template() {
     local app_name="$1"
     local template_root="$2"
     local firebase_project_id="${3:-FIREBASE_PROJECT_ID}"
+    local create_models="${4:-yes}"
     local server_name="${app_name}_server"
 
     log_step "Copying Server Template"
@@ -72,6 +73,24 @@ copy_server_template() {
     # Copy pubspec.yaml
     if [ -f "$server_template/pubspec.yaml" ]; then
         cp "$server_template/pubspec.yaml" "$server_name/pubspec.yaml" || return 1
+
+        # Remove models dependency if models package is not being created
+        if [ "$create_models" = "no" ]; then
+            log_info "Removing models dependency from server (no models package)"
+            # Remove the lines containing APPNAME_models dependency (including blank line before it)
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                # Remove blank line, APPNAME_models:, and path: ../APPNAME_models
+                sed -i '' -e '/^$/{ N; /\n  APPNAME_models:/{ N; /path: \.\.\/APPNAME_models/d; }; }' "$server_name/pubspec.yaml"
+                # Fallback: remove any remaining APPNAME_models references
+                sed -i '' '/APPNAME_models:/d' "$server_name/pubspec.yaml"
+                sed -i '' '/path: \.\.\/APPNAME_models/d' "$server_name/pubspec.yaml"
+            else
+                sed -i -e '/^$/{ N; /\n  APPNAME_models:/{ N; /path: \.\.\/APPNAME_models/d; }; }' "$server_name/pubspec.yaml"
+                sed -i '/APPNAME_models:/d' "$server_name/pubspec.yaml"
+                sed -i '/path: \.\.\/APPNAME_models/d' "$server_name/pubspec.yaml"
+            fi
+        fi
+
         log_success "Copied server pubspec.yaml"
     fi
 

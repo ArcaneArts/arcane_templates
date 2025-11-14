@@ -317,7 +317,7 @@ main() {
 
     if [ "$CREATE_SERVER" = "yes" ]; then
         print_header "Step 12: Copying Server Template"
-        copy_server_template "$APP_NAME" "$SCRIPT_DIR" "$FIREBASE_PROJECT_ID" || exit 1
+        copy_server_template "$APP_NAME" "$SCRIPT_DIR" "$FIREBASE_PROJECT_ID" "$CREATE_MODELS" || exit 1
     fi
 
     # Step 13: Copy template files (lib/, pubspec.yaml, assets/, etc.)
