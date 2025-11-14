@@ -256,7 +256,7 @@ copy_template_files() {
             # Only copy specific files to avoid overwriting critical flutter-generated files
 
             if [ "$platform_dir" = "macos" ]; then
-                # Copy macOS Runner files (Info.plist, entitlements, etc.)
+                # Copy macOS Runner files (Info.plist, entitlements, Swift code, etc.)
                 if [ -f "$template_dir/macos/Runner/Info.plist" ]; then
                     cp "$template_dir/macos/Runner/Info.plist" "$app_name/macos/Runner/" 2>/dev/null || true
                 fi
@@ -265,6 +265,10 @@ copy_template_files() {
                 fi
                 if [ -f "$template_dir/macos/Runner/Release.entitlements" ]; then
                     cp "$template_dir/macos/Runner/Release.entitlements" "$app_name/macos/Runner/" 2>/dev/null || true
+                fi
+                if [ -f "$template_dir/macos/Runner/MainFlutterWindow.swift" ]; then
+                    cp "$template_dir/macos/Runner/MainFlutterWindow.swift" "$app_name/macos/Runner/" 2>/dev/null || true
+                    log_info "Copied MainFlutterWindow.swift with launch_at_startup platform code"
                 fi
             fi
 

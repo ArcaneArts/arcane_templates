@@ -326,7 +326,7 @@ main() {
 
     # Step 14: Add dependencies
     print_header "Step 14: Adding Dependencies"
-    add_all_dependencies "$APP_NAME" "$USE_FIREBASE" "$CREATE_MODELS" "$CREATE_SERVER" || exit 1
+    add_all_dependencies "$APP_NAME" "$USE_FIREBASE" "$CREATE_MODELS" "$CREATE_SERVER" "$PLATFORMS" || exit 1
 
     # Step 15: Setup Firebase (if enabled)
     if [ "$USE_FIREBASE" = "yes" ]; then
