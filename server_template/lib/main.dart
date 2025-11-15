@@ -18,7 +18,6 @@ import 'package:shelf/shelf_io.dart';
 import 'package:shelf_cors_headers/shelf_cors_headers.dart';
 import 'package:shelf_router/shelf_router.dart';
 
-/// Main server. Services: APPNAMEServer.svcUser, .svcCommand, .svcMedia
 class APPNAMEServer implements Routing {
   static late final APPNAMEServer instance;
   late final HttpServer server;
@@ -39,8 +38,12 @@ class APPNAMEServer implements Routing {
     await ArcaneAdmin.initialize();
     instance = this;
     await Future.wait([_startServices(), _startAPIs()]);
+
     FirestoreDatabase.instance.debugLogging = false;
+
     authenticator = RequestAuthenticator();
+
+    // Start Server
     verbose("STARTING APPNAME SERVER");
     server = await serve(_pipeline, InternetAddress.anyIPv4, listenPort());
     verbose("Server listening on port ${server.port}");
@@ -106,15 +109,14 @@ class APPNAMEServer implements Routing {
       Response.ok('{"ok": true}');
 }
 
+// Firebase Storage bucket name (update with your project ID)
 const String bucket = "FIREBASE_PROJECT_ID.firebasestorage.app";
 
-/// Interface for API classes. Each API mounts to router with prefix
 abstract class Routing {
   Router get router;
   String get prefix;
 }
 
-/// Query param helper: request.param('userId')
 extension XRequest on Request {
   String? param(String key) => url.queryParameters[key];
 }
