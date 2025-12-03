@@ -124,6 +124,12 @@ copy_server_template() {
 
     log_info "Replacing placeholders in server..."
 
+    # IMPORTANT: Replace class names (PascalCase) BEFORE replacing APPNAME
+    # Otherwise APPNAMEServer becomes app_nameServer instead of AppNameServer
+    local class_name=$(snake_to_pascal "$app_name")
+    find "$server_name" -type f -name "*.dart" -exec \
+        sed -i.bak "s/APPNAMEServer/${class_name}Server/g" {} \; -exec rm {}.bak \;
+
     # Replace APPNAME with actual app name
     find "$server_name" -type f \( -name "*.dart" -o -name "*.md" -o -name "*.yaml" -o -name "Dockerfile" -o -name "*.sh" \) -exec \
         sed -i.bak "s/APPNAME/$app_name/g" {} \; -exec rm {}.bak \;
@@ -131,11 +137,6 @@ copy_server_template() {
     # Replace FIREBASE_PROJECT_ID
     find "$server_name" -type f \( -name "*.dart" -o -name "*.sh" \) -exec \
         sed -i.bak "s/FIREBASE_PROJECT_ID/$firebase_project_id/g" {} \; -exec rm {}.bak \;
-
-    # Replace AppName class name (PascalCase)
-    local class_name=$(snake_to_pascal "$app_name")
-    find "$server_name" -type f -name "*.dart" -exec \
-        sed -i.bak "s/APPNAMEServer/${class_name}Server/g" {} \; -exec rm {}.bak \;
 
     log_success "Server template copied and customized"
     return 0
@@ -235,6 +236,12 @@ copy_cli_template() {
 
     log_info "Replacing placeholders in CLI..."
 
+    # IMPORTANT: Replace class names (PascalCase) BEFORE replacing APPNAME
+    # Otherwise APPNAMERunner becomes app_nameRunner instead of AppNameRunner
+    local class_name=$(snake_to_pascal "$app_name")
+    find "$app_name" -type f -name "*.dart" -exec \
+        sed -i.bak "s/APPNAMERunner/${class_name}Runner/g" {} \; -exec rm {}.bak \;
+
     # Replace APPNAME with actual app name (handles APPNAME_cli -> app_name pattern)
     find "$app_name" -type f \( -name "*.dart" -o -name "*.md" -o -name "*.yaml" \) -exec \
         sed -i.bak "s/APPNAME_cli/${app_name}/g" {} \; -exec rm {}.bak \;
@@ -244,11 +251,6 @@ copy_cli_template() {
     # Replace FIREBASE_PROJECT_ID
     find "$app_name" -type f -name "*.dart" -exec \
         sed -i.bak "s/FIREBASE_PROJECT_ID/$firebase_project_id/g" {} \; -exec rm {}.bak \;
-
-    # Replace AppName class name (PascalCase)
-    local class_name=$(snake_to_pascal "$app_name")
-    find "$app_name" -type f -name "*.dart" -exec \
-        sed -i.bak "s/APPNAMERunner/${class_name}Runner/g" {} \; -exec rm {}.bak \;
 
     # Rename main library file (APPNAME.dart -> app_name.dart)
     if [ -f "$app_name/lib/APPNAME.dart" ]; then
