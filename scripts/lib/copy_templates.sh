@@ -218,6 +218,10 @@ copy_cli_template() {
         log_success "Copied CLI pubspec.yaml"
     fi
 
+    # Remove default dart create files before copying template
+    # dart create -t console generates bin/<name>.dart and lib/<name>.dart with default code
+    rm -rf "$app_name/bin" "$app_name/lib"
+
     # Copy bin directory
     cp -r "$cli_template/bin" "$app_name/" || return 1
 

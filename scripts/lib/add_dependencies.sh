@@ -183,11 +183,10 @@ add_all_dependencies() {
 add_cli_dependencies() {
     local app_name="$1"
     local use_firebase="${2:-no}"
-    local cli_name="${app_name}_cli"
 
-    log_info "Installing CLI dependencies for $cli_name..."
+    log_info "Installing CLI dependencies for $app_name..."
 
-    cd "$cli_name" || return 1
+    cd "$app_name" || return 1
 
     echo ""
     retry_command "Install CLI dependencies" dart pub get
