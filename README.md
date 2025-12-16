@@ -11,25 +11,28 @@ Project scaffolding and script runner for Arcane-based Flutter and Dart applicat
 
 ## Features
 
-- **Project Scaffolding** - Create production-ready Flutter and Dart projects
+- **Mason Brick Templates** - Production-ready project templates using [Mason](https://pub.dev/packages/mason)
 - **Script Runner** - Execute pubspec.yaml scripts with fuzzy matching
 - **Multi-Project Architecture** - Client, models, and server packages
 - **Firebase Integration** - Automated setup and deployment
 - **Platform Selection** - Choose which platforms to target
+- **Dependency Management** - Tools to keep brick dependencies in sync
 
-## Structure
+## Repository Structure
 
 ```
 Oracular/
-├── oracular/          Dart CLI tool
-├── oracular_gui/      Flutter GUI wizard
-└── templates/       Project templates (editable)
-    ├── arcane_app/         Basic multi-platform Flutter app
-    ├── arcane_beamer_app/  Beamer navigation Flutter app
-    ├── arcane_dock_app/    Desktop system tray app
-    ├── arcane_cli_app/     Dart CLI application
-    ├── arcane_models/      Shared data models package
-    └── arcane_server/      Shelf-based REST API server
+├── oracular/           # Dart CLI tool
+├── oracular_gui/       # Flutter GUI wizard
+├── bricks/             # Mason brick templates
+│   ├── arcane_app/     # Multi-platform Flutter app
+│   ├── arcane_beamer/  # Beamer navigation Flutter app
+│   ├── arcane_dock/    # Desktop system tray app
+│   ├── arcane_cli/     # Dart CLI application
+│   ├── arcane_models/  # Shared data models package
+│   └── arcane_server/  # Shelf-based REST API server
+├── reference/          # Dependency resolution project
+└── scripts/            # Brick maintenance scripts
 ```
 
 ## Installation
@@ -42,13 +45,16 @@ dart pub global activate oracular
 
 ```bash
 # Interactive wizard
-oracular
+oracular create
 
 # Launch GUI wizard
 oracular gui
 
 # Create project directly
-oracular create app --name my_app --org com.example
+oracular create --app-name my_app --org com.example --template 1
+
+# Use Mason directly
+oracular mason make --brick arcane_app
 ```
 
 ## Commands
@@ -56,10 +62,10 @@ oracular create app --name my_app --org com.example
 ### Project Creation
 
 ```bash
-oracular                          # Interactive wizard
-oracular gui                      # Launch GUI wizard
-oracular create app               # Create project with prompts
+oracular create                   # Interactive project creation
 oracular create templates         # List available templates
+oracular mason make               # Generate from Mason brick
+oracular mason list               # List available bricks
 ```
 
 ### Script Runner
@@ -104,19 +110,53 @@ oracular deploy server-setup      # Generate Docker configs
 oracular deploy server-build      # Build Docker image
 ```
 
-## Templates
+## Available Bricks
 
-| Template | Type | Platforms | Description |
-|----------|------|-----------|-------------|
-| Basic Arcane | Flutter | All | Multi-platform app with Arcane UI |
-| Beamer Navigation | Flutter | All | Declarative routing with Beamer |
-| Desktop Tray | Flutter | Desktop | System tray/menu bar application |
-| Dart CLI | Dart | - | Command-line interface app |
+| Brick | Type | Platforms | Description |
+|-------|------|-----------|-------------|
+| `arcane_app` | Flutter | All | Multi-platform app with Arcane UI |
+| `arcane_beamer` | Flutter | All | Declarative routing with Beamer |
+| `arcane_dock` | Flutter | Desktop | System tray/menu bar application |
+| `arcane_cli` | Dart | - | Command-line interface app |
+| `arcane_models` | Dart | - | Shared data models package |
+| `arcane_server` | Dart | - | Shelf-based REST API server |
 
-### Additional Packages
+### Brick Variables
 
-- **Models Package** - Shared data models for client and server
-- **Server App** - Shelf-based REST API with Firebase integration
+When creating a project, you'll be prompted for:
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `name` | Project name (snake_case) | `my_app` |
+| `class_name` | Base class name (PascalCase) | `MyApp` |
+| `org` | Organization domain | `com.example` |
+| `description` | Project description | `My awesome app` |
+| `use_firebase` | Enable Firebase integration | `true/false` |
+| `firebase_project_id` | Firebase project ID | `my-firebase-project` |
+| `platforms` | Target platforms (Flutter only) | `[android, ios, web]` |
+
+## Dependency Management
+
+The bricks use Mason's Mustache syntax which makes pubspec files difficult to edit directly. Use these scripts to manage dependencies:
+
+```bash
+# Check for dependency conflicts across all bricks
+oracular scripts exec check_conflicts
+
+# Build reference pubspec from all brick dependencies
+oracular scripts exec build_reference
+
+# After running `flutter pub upgrade` in reference/, sync back to bricks
+oracular scripts exec sync_versions
+```
+
+### Workflow
+
+1. **Check for conflicts**: `oracular scripts exec check_conflicts`
+2. **If compatible, upgrade**: `cd reference/ && flutter pub upgrade`
+3. **Sync to bricks**: `oracular scripts exec sync_versions`
+
+See [How to Make Bricks](docs/how-to-make-bricks.md) for detailed documentation.
 
 ## Script Runner Examples
 
@@ -142,9 +182,31 @@ oracular scripts exec pi          # pod_install
 
 ## Development
 
-See individual package READMEs:
+### CLI Development
+
+```bash
+cd oracular
+dart pub get
+dart run bin/main.dart --help
+```
+
+### Running Tests
+
+```bash
+cd oracular
+dart test
+```
+
+### Creating Custom Bricks
+
+See [How to Make Bricks](docs/how-to-make-bricks.md) for a comprehensive guide on creating your own Mason bricks.
+
+## Documentation
+
 - [CLI Development](oracular/README.md)
 - [GUI Development](oracular_gui/README.md)
+- [How to Make Bricks](docs/how-to-make-bricks.md)
+- Individual brick READMEs in `bricks/*/README.md`
 
 ## License
 

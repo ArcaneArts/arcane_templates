@@ -11,9 +11,8 @@ import '../utils/validators.dart';
 import 'config_generator.dart';
 import 'dependency_manager.dart';
 import 'firebase_service.dart';
-import 'project_creator.dart';
+import 'mason_service.dart';
 import 'server_setup.dart';
-import 'template_copier.dart';
 import 'tool_checker.dart';
 
 /// Interactive wizard for project setup
@@ -249,29 +248,65 @@ class InteractiveWizard {
   Future<void> _executeSetup(SetupConfig config) async {
     UserPrompt.printDivider(title: 'Creating Project');
 
-    // Create projects with spinner
+    // Map template type to brick name
+    final brickName = _getBrickName(config.template);
+
+    // Build variables for Mason
+    final vars = {
+      'name': config.appName,
+      'class_name': config.baseClassName,
+      'org': config.orgDomain,
+      'description': 'A new Arcane project',
+      'use_firebase': config.useFirebase,
+      'firebase_project_id': config.firebaseProjectId ?? '',
+      'platforms': config.platforms,
+    };
+
+    // Generate main app using Mason
     await UserPrompt.withSpinner(
-      'Creating project structure...',
+      'Creating ${config.template.displayName}...',
       () async {
-        final creator = ProjectCreator(config);
-        if (!await creator.createAllProjects()) {
-          throw Exception('Failed to create projects');
-        }
-        // Clean up test folders while we're at it
-        await creator.deleteTestFolders();
+        await MasonService.generate(
+          brickName: brickName,
+          outputDir: config.outputDir,
+          vars: vars,
+          onProgress: (message) => verbose(message),
+        );
       },
-      doneMessage: '✓ Project structure created',
+      doneMessage: '✓ Main app created',
     );
 
-    // Copy templates with spinner (downloads from GitHub if needed)
-    await UserPrompt.withSpinner(
-      'Preparing templates...',
-      () async {
-        final copier = await TemplateCopier.create(config);
-        await copier.copyAll();
-      },
-      doneMessage: '✓ Template files copied',
-    );
+    // Generate models package if enabled
+    if (config.createModels) {
+      await UserPrompt.withSpinner(
+        'Creating models package...',
+        () async {
+          await MasonService.generate(
+            brickName: 'arcane_models',
+            outputDir: config.outputDir,
+            vars: vars,
+            onProgress: (message) => verbose(message),
+          );
+        },
+        doneMessage: '✓ Models package created',
+      );
+    }
+
+    // Generate server app if enabled
+    if (config.createServer) {
+      await UserPrompt.withSpinner(
+        'Creating server app...',
+        () async {
+          await MasonService.generate(
+            brickName: 'arcane_server',
+            outputDir: config.outputDir,
+            vars: vars,
+            onProgress: (message) => verbose(message),
+          );
+        },
+        doneMessage: '✓ Server app created',
+      );
+    }
 
     // Link models if needed
     final depManager = DependencyManager(config);
@@ -284,15 +319,6 @@ class InteractiveWizard {
         doneMessage: '✓ Models package linked',
       );
     }
-
-    // Get dependencies with spinner (this can take a while)
-    await UserPrompt.withSpinner(
-      'Installing dependencies (this may take a moment)...',
-      () async {
-        await depManager.getAllDependencies();
-      },
-      doneMessage: '✓ Dependencies installed',
-    );
 
     // Run build_runner with spinner
     await UserPrompt.withSpinner(
@@ -465,5 +491,15 @@ class InteractiveWizard {
 
     print('');
     UserPrompt.printSuccessBox('Happy coding!');
+  }
+
+  /// Map template type to brick name
+  String _getBrickName(TemplateType templateType) {
+    return switch (templateType) {
+      TemplateType.arcaneTemplate => 'arcane_app',
+      TemplateType.arcaneBeamer => 'arcane_beamer',
+      TemplateType.arcaneDock => 'arcane_dock',
+      TemplateType.arcaneCli => 'arcane_cli',
+    };
   }
 }

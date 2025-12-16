@@ -1,0 +1,196 @@
+#!/usr/bin/env dart
+// ignore_for_file: avoid_print
+/// Builds the reference/pubspec.yaml by extracting dependencies from all bricks.
+///
+/// This ensures the reference project contains exactly what the bricks use.
+///
+/// Workflow:
+///   1. dart run scripts/build_reference.dart  # Build reference from bricks
+///   2. cd reference/ && flutter pub upgrade   # Upgrade dependencies
+///   3. cd .. && dart run scripts/sync_from_lock.dart  # Sync back to bricks
+
+import 'dart:io';
+
+void main() async {
+  print('╔══════════════════════════════════════════════════════════════╗');
+  print('║       Build Reference pubspec from Brick Dependencies        ║');
+  print('╚══════════════════════════════════════════════════════════════╝');
+  print('');
+
+  final repoRoot = _findRepoRoot();
+  if (repoRoot == null) {
+    print('❌ Error: Could not find repository root');
+    exit(1);
+  }
+
+  // Collect dependencies from all bricks
+  print('🔍 Scanning brick pubspecs...');
+  final allDeps = <String, _DepInfo>{};
+  final devDeps = <String, _DepInfo>{};
+  final bricksDir = Directory('$repoRoot/bricks');
+
+  await for (final entity in bricksDir.list(recursive: true)) {
+    if (entity is File &&
+        entity.path.endsWith('pubspec.yaml') &&
+        entity.path.contains('__brick__')) {
+      final content = await entity.readAsString();
+      final brickName = _extractBrickName(entity.path);
+      _extractDeps(content, brickName, allDeps, devDeps);
+    }
+  }
+
+  print('   Found ${allDeps.length} dependencies');
+  print('   Found ${devDeps.length} dev dependencies');
+  print('');
+
+  // Generate reference pubspec
+  print('📝 Generating reference/pubspec.yaml...');
+  final pubspecContent = _generatePubspec(allDeps, devDeps);
+
+  final refDir = Directory('$repoRoot/reference');
+  if (!refDir.existsSync()) {
+    await refDir.create();
+  }
+
+  final pubspecFile = File('$repoRoot/reference/pubspec.yaml');
+  await pubspecFile.writeAsString(pubspecContent);
+
+  print('');
+  print('════════════════════════════════════════════════════════════════');
+  print('✅ Generated reference/pubspec.yaml');
+  print('');
+  print('Next steps:');
+  print('  1. cd reference/');
+  print('  2. flutter pub upgrade          # Update within constraints');
+  print('     OR');
+  print('     flutter pub upgrade --major-versions  # Update to latest');
+  print('  3. cd ..');
+  print('  4. dart run scripts/sync_from_lock.dart  # Sync to bricks');
+  print('════════════════════════════════════════════════════════════════');
+}
+
+String? _findRepoRoot() {
+  var dir = Directory.current;
+  while (dir.path != dir.parent.path) {
+    if (Directory('${dir.path}/bricks').existsSync()) {
+      return dir.path;
+    }
+    dir = dir.parent;
+  }
+  return null;
+}
+
+String _extractBrickName(String path) {
+  final match = RegExp(r'bricks/([^/]+)/').firstMatch(path);
+  return match?.group(1) ?? 'unknown';
+}
+
+void _extractDeps(String content, String brickName,
+    Map<String, _DepInfo> deps, Map<String, _DepInfo> devDeps) {
+  final lines = content.split('\n');
+  var inDeps = false;
+  var inDevDeps = false;
+
+  for (final line in lines) {
+    if (line.startsWith('dependencies:')) {
+      inDeps = true;
+      inDevDeps = false;
+      continue;
+    }
+    if (line.startsWith('dev_dependencies:')) {
+      inDeps = false;
+      inDevDeps = true;
+      continue;
+    }
+    if (line.startsWith('flutter:') ||
+        line.startsWith('scripts:') ||
+        line.startsWith('executables:') ||
+        (RegExp(r'^\w').hasMatch(line) && !line.startsWith(' '))) {
+      inDeps = false;
+      inDevDeps = false;
+      continue;
+    }
+
+    // Skip Mustache conditionals and SDK deps
+    if (line.contains('{{') || line.contains('sdk:')) continue;
+
+    // Match "  package: ^1.2.3" or "  package: any"
+    final match = RegExp(r'^\s{2}(\w+):\s*(\^?[\d.]+|any)\s*$').firstMatch(line);
+    if (match != null) {
+      final package = match.group(1)!;
+      final version = match.group(2)!;
+
+      final targetMap = inDevDeps ? devDeps : (inDeps ? deps : null);
+      if (targetMap != null) {
+        if (!targetMap.containsKey(package)) {
+          targetMap[package] = _DepInfo(version, {brickName});
+        } else {
+          targetMap[package]!.usedBy.add(brickName);
+          // Keep the more specific version constraint
+          if (targetMap[package]!.version == 'any' && version != 'any') {
+            targetMap[package]!.version = version;
+          }
+        }
+      }
+    }
+  }
+}
+
+String _generatePubspec(Map<String, _DepInfo> deps, Map<String, _DepInfo> devDeps) {
+  final buffer = StringBuffer();
+
+  buffer.writeln('# AUTO-GENERATED - Do not edit manually');
+  buffer.writeln('# Generated by: dart run scripts/build_reference.dart');
+  buffer.writeln('#');
+  buffer.writeln('# This file aggregates all dependencies from brick templates.');
+  buffer.writeln('# After running flutter pub upgrade, use sync_from_lock.dart');
+  buffer.writeln('# to sync resolved versions back to bricks.');
+  buffer.writeln('');
+  buffer.writeln('name: reference_deps');
+  buffer.writeln('description: Reference project for brick dependency management');
+  buffer.writeln("publish_to: 'none'");
+  buffer.writeln('version: 1.0.0');
+  buffer.writeln('');
+  buffer.writeln('environment:');
+  buffer.writeln('  sdk: ^3.0.0');
+  buffer.writeln('');
+  buffer.writeln('dependencies:');
+  buffer.writeln('  flutter:');
+  buffer.writeln('    sdk: flutter');
+  buffer.writeln('');
+
+  // Group by first letter for readability
+  final sortedDeps = deps.entries.toList()
+    ..sort((a, b) => a.key.compareTo(b.key));
+
+  for (final entry in sortedDeps) {
+    final usedBy = entry.value.usedBy.join(', ');
+    buffer.writeln('  # Used by: $usedBy');
+    buffer.writeln('  ${entry.key}: ${entry.value.version}');
+  }
+
+  buffer.writeln('');
+  buffer.writeln('dev_dependencies:');
+  buffer.writeln('  flutter_test:');
+  buffer.writeln('    sdk: flutter');
+
+  final sortedDevDeps = devDeps.entries.toList()
+    ..sort((a, b) => a.key.compareTo(b.key));
+
+  for (final entry in sortedDevDeps) {
+    buffer.writeln('  ${entry.key}: ${entry.value.version}');
+  }
+
+  buffer.writeln('');
+  buffer.writeln('flutter:');
+  buffer.writeln('  uses-material-design: true');
+
+  return buffer.toString();
+}
+
+class _DepInfo {
+  String version;
+  final Set<String> usedBy;
+
+  _DepInfo(this.version, this.usedBy);
+}

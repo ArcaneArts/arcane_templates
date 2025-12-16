@@ -1,0 +1,30 @@
+name: arcane_dock
+description: Desktop system tray/menu bar application with Arcane UI
+version: 1.0.0
+repository: https://github.com/ArcaneArts/oracular
+
+environment:
+  mason: ">=0.1.0 <0.2.0"
+
+vars:
+  name:
+    type: string
+    description: Project name (snake_case, e.g., my_dock_app)
+    prompt: What is the project name?
+
+  class_name:
+    type: string
+    description: Base class name (PascalCase, e.g., MyDockApp)
+    prompt: What is the base class name?
+
+  org:
+    type: string
+    description: Organization domain (e.g., com.example)
+    default: com.example
+    prompt: Organization domain?
+
+  description:
+    type: string
+    description: Project description
+    default: A desktop system tray application built with Arcane
+    prompt: Project description?

@@ -6,8 +6,7 @@ import 'package:path/path.dart' as p;
 import '../../models/setup_config.dart';
 import '../../models/template_info.dart';
 import '../../services/dependency_manager.dart';
-import '../../services/project_creator.dart';
-import '../../services/template_copier.dart';
+import '../../services/mason_service.dart';
 import '../../services/tool_checker.dart';
 import '../../utils/string_utils.dart';
 import '../../utils/user_prompt.dart';
@@ -211,35 +210,65 @@ Future<SetupConfig> _gatherConfig({
   );
 }
 
-/// Execute the project creation
+/// Execute the project creation using Mason bricks
 Future<void> _executeCreation(SetupConfig config) async {
-  info('Starting project creation...');
+  info('Starting project creation with Mason...');
 
-  // 1. Create projects using flutter/dart create
-  final creator = ProjectCreator(config);
-  if (!await creator.createAllProjects()) {
-    error('Failed to create projects');
-    exit(1);
+  // Map template type to brick name
+  final brickName = _getBrickName(config.template);
+
+  // Build variables for Mason
+  final vars = {
+    'name': config.appName,
+    'class_name': config.baseClassName,
+    'org': config.orgDomain,
+    'description': 'A new Arcane project',
+    'use_firebase': config.useFirebase,
+    'firebase_project_id': config.firebaseProjectId ?? '',
+    'platforms': config.platforms,
+  };
+
+  // 1. Generate main app using Mason
+  info('Creating ${config.template.displayName}...');
+  await MasonService.generate(
+    brickName: brickName,
+    outputDir: config.outputDir,
+    vars: vars,
+    onProgress: (message) => verbose(message),
+  );
+
+  // 2. Generate models package if enabled
+  if (config.createModels) {
+    info('Creating models package...');
+    await MasonService.generate(
+      brickName: 'arcane_models',
+      outputDir: config.outputDir,
+      vars: vars,
+      onProgress: (message) => verbose(message),
+    );
   }
 
-  // 2. Copy template files (downloads from GitHub if needed)
-  final copier = await TemplateCopier.create(config);
-  await copier.copyAll();
+  // 3. Generate server app if enabled
+  if (config.createServer) {
+    info('Creating server app...');
+    await MasonService.generate(
+      brickName: 'arcane_server',
+      outputDir: config.outputDir,
+      vars: vars,
+      onProgress: (message) => verbose(message),
+    );
+  }
 
-  // 3. Delete test folders
-  await creator.deleteTestFolders();
-
-  // 4. Get dependencies
+  // 4. Link models and handle cross-project dependencies
   final depManager = DependencyManager(config);
 
-  // Link models first if created
   if (config.createModels) {
+    info('Linking models package...');
     await depManager.linkModelsToProjects();
   }
 
-  await depManager.getAllDependencies();
-
-  // 5. Run build_runner where needed
+  // 5. Run build_runner where needed (for generated code)
+  info('Running code generation...');
   await depManager.runAllBuildRunners();
 
   // 6. Save configuration
@@ -275,4 +304,14 @@ Future<void> _executeCreation(SetupConfig config) async {
     warn('Firebase setup required:');
     print('  oracular deploy firebase-setup');
   }
+}
+
+/// Map template type to brick name
+String _getBrickName(TemplateType templateType) {
+  return switch (templateType) {
+    TemplateType.arcaneTemplate => 'arcane_app',
+    TemplateType.arcaneBeamer => 'arcane_beamer',
+    TemplateType.arcaneDock => 'arcane_dock',
+    TemplateType.arcaneCli => 'arcane_cli',
+  };
 }

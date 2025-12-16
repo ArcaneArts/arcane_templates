@@ -1,0 +1,24 @@
+name: arcane_server
+description: Dart server backend with Firebase integration for Arcane projects
+version: 1.0.0
+repository: https://github.com/ArcaneArts/oracular
+
+environment:
+  mason: ">=0.1.0 <0.2.0"
+
+vars:
+  name:
+    type: string
+    description: Project name (snake_case, e.g., my_app) - package will be named {name}_server
+    prompt: What is the project name?
+
+  class_name:
+    type: string
+    description: Base class name (PascalCase, e.g., MyApp)
+    prompt: What is the base class name?
+
+  firebase_project_id:
+    type: string
+    description: Firebase project ID
+    default: ""
+    prompt: Firebase project ID?

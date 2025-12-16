@@ -1,0 +1,32 @@
+name: {{name.snakeCase()}}_models
+description: Shared models package for {{name.snakeCase()}}
+version: 1.0.0
+publish_to: 'none'
+environment:
+  sdk: ^3.10.0
+
+dependencies:
+  arcane_admin: ^1.5.8
+  artifact: ^1.0.22
+  crypto: ^3.0.7
+  fire_crud: ^3.1.14
+  toxic: ^1.3.8
+
+dev_dependencies:
+  artifact_gen: ^1.1.6
+  build_runner: ^2.10.4
+  fire_crud_gen: ^1.1.4
+  lints: ^6.0.0
+
+scripts:
+  # Oracular Commands
+  check_tools: oracular check all
+
+  # Code Generation
+  build_runner: dart run build_runner build --delete-conflicting-outputs
+  build_runner_watch: dart run build_runner watch --delete-conflicting-outputs
+{{#firebase_project_id}}
+
+  # Firebase Rules
+  deploy_rules: cd .. && firebase use {{firebase_project_id}} && firebase deploy --only firestore && cd {{name.snakeCase()}}_models
+{{/firebase_project_id}}

@@ -5,6 +5,7 @@ import 'handlers/config_handlers.dart';
 import 'handlers/create_handlers.dart';
 import 'handlers/deploy_handlers.dart';
 import 'handlers/gui_handlers.dart';
+import 'handlers/mason_handlers.dart';
 import 'handlers/script_handlers.dart';
 import 'handlers/templates_handlers.dart';
 
@@ -245,6 +246,29 @@ final List<DartedCommand> commandsTree = [
         name: 'path',
         helperDescription: 'Show template cache path',
         callback: (_, __) => handleTemplatesPath(),
+      ),
+    ],
+  ),
+
+  // Mason command (new brick-based template system)
+  DartedCommand(
+    name: 'mason',
+    helperDescription: 'Mason brick-based project generation',
+    callback: (_, __) => handleMasonList(),
+    subCommands: [
+      DartedCommand(
+        name: 'make',
+        helperDescription: 'Generate a project from a brick',
+        arguments: [
+          DartedArgument(name: 'brick', abbreviation: 'b', defaultValue: 'arcane_app'),
+          DartedArgument(name: 'output', abbreviation: 'o'),
+        ],
+        callback: (args, flags) => handleMasonMake(args ?? {}, _boolToMap(flags)),
+      ),
+      DartedCommand(
+        name: 'list',
+        helperDescription: 'List available bricks',
+        callback: (_, __) => handleMasonList(),
       ),
     ],
   ),

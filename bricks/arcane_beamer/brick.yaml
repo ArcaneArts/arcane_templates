@@ -1,0 +1,55 @@
+name: arcane_beamer
+description: Multi-platform Flutter app with Arcane UI and Beamer navigation
+version: 1.0.0
+repository: https://github.com/ArcaneArts/oracular
+
+environment:
+  mason: ">=0.1.0 <0.2.0"
+
+vars:
+  name:
+    type: string
+    description: Project name (snake_case, e.g., my_app)
+    prompt: What is the project name?
+
+  class_name:
+    type: string
+    description: Base class name (PascalCase, e.g., MyApp)
+    prompt: What is the base class name?
+
+  org:
+    type: string
+    description: Organization domain (e.g., com.example)
+    default: com.example
+    prompt: Organization domain?
+
+  description:
+    type: string
+    description: Project description
+    default: A new Arcane project with Beamer navigation
+    prompt: Project description?
+
+  use_firebase:
+    type: boolean
+    description: Include Firebase integration
+    default: false
+    prompt: Include Firebase?
+
+  firebase_project_id:
+    type: string
+    description: Firebase project ID (if using Firebase)
+    default: ""
+    prompt: Firebase project ID?
+
+  platforms:
+    type: array
+    description: Target platforms
+    default: [android, ios, web, macos, linux, windows]
+    prompt: Which platforms?
+    values:
+      - android
+      - ios
+      - web
+      - macos
+      - linux
+      - windows
