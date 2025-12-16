@@ -222,8 +222,8 @@ Future<void> _executeCreation(SetupConfig config) async {
     exit(1);
   }
 
-  // 2. Copy template files
-  final copier = TemplateCopier(config);
+  // 2. Copy template files (downloads from GitHub if needed)
+  final copier = await TemplateCopier.create(config);
   await copier.copyAll();
 
   // 3. Delete test folders

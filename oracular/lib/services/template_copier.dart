@@ -7,52 +7,66 @@ import '../models/setup_config.dart';
 import '../models/template_info.dart';
 import '../utils/user_prompt.dart';
 import 'placeholder_replacer.dart';
+import 'template_downloader.dart';
 
 /// Service for copying and customizing templates
 class TemplateCopier {
   final SetupConfig config;
   late final PlaceholderReplacer _replacer;
 
-  /// Path to the templates directory (sibling to oracular package)
-  late final String templatesBasePath;
+  /// Path to the templates directory
+  final String templatesBasePath;
 
-  TemplateCopier(this.config) {
+  /// Private constructor - use create() factory
+  TemplateCopier._(this.config, this.templatesBasePath) {
     _replacer = PlaceholderReplacer(config);
-    templatesBasePath = _findTemplatesPath();
+  }
+
+  /// Create a TemplateCopier with a known templates path (for testing)
+  TemplateCopier.withPath(this.config, this.templatesBasePath) {
+    _replacer = PlaceholderReplacer(config);
+  }
+
+  /// Create a TemplateCopier with templates ready
+  /// This will download templates from GitHub if not available locally
+  static Future<TemplateCopier> create(
+    SetupConfig config, {
+    void Function(String message)? onProgress,
+  }) async {
+    final String templatesPath = await _findTemplatesPath(onProgress: onProgress);
+    return TemplateCopier._(config, templatesPath);
   }
 
   /// Find the templates directory
-  /// Templates are now in a sibling 'templates/' folder, not embedded in lib/
-  String _findTemplatesPath() {
-    // Try to find templates relative to the script
+  /// First checks local development paths, then downloads from GitHub
+  static Future<String> _findTemplatesPath({
+    void Function(String message)? onProgress,
+  }) async {
+    // Try to find templates relative to the script (for local development)
     final String scriptPath = Platform.script.toFilePath();
     final String scriptDir = p.dirname(scriptPath);
 
-    // Check various possible locations
+    // Check various possible locations for local development
     final List<String> possiblePaths = <String>[
-      // When running from pub global activate - templates sibling to package
-      p.join(scriptDir, '..', '..', 'templates'),
       // When running locally with dart run from oracular/ directory
       p.join(scriptDir, '..', '..', 'templates'),
       // When running from the oracular package directory
       p.join(Directory.current.path, '..', 'templates'),
       // When running from the Oracular monorepo root
       p.join(Directory.current.path, 'templates'),
-      // Absolute path for development
-      '/Users/brianfopiano/Developer/RemoteGit/ArcaneArts/Oracular/templates',
     ];
 
     for (final String path in possiblePaths) {
       final String normalizedPath = p.normalize(path);
       if (Directory(normalizedPath).existsSync()) {
-        verbose('Found templates at: $normalizedPath');
+        verbose('Found local templates at: $normalizedPath');
         return normalizedPath;
       }
     }
 
-    // Fallback to current directory
-    warn('Templates directory not found, using current directory');
-    return p.join(Directory.current.path, 'templates');
+    // No local templates found - download from GitHub
+    onProgress?.call('Downloading templates from GitHub...');
+    return await TemplateDownloader.ensureTemplates(onProgress: onProgress);
   }
 
   /// Get the path to a specific template

@@ -263,11 +263,11 @@ class InteractiveWizard {
       doneMessage: '✓ Project structure created',
     );
 
-    // Copy templates with spinner
+    // Copy templates with spinner (downloads from GitHub if needed)
     await UserPrompt.withSpinner(
-      'Copying template files...',
+      'Preparing templates...',
       () async {
-        final copier = TemplateCopier(config);
+        final copier = await TemplateCopier.create(config);
         await copier.copyAll();
       },
       doneMessage: '✓ Template files copied',

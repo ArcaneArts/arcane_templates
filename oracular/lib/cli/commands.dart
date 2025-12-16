@@ -6,6 +6,7 @@ import 'handlers/create_handlers.dart';
 import 'handlers/deploy_handlers.dart';
 import 'handlers/gui_handlers.dart';
 import 'handlers/script_handlers.dart';
+import 'handlers/templates_handlers.dart';
 
 /// All CLI commands for Oracular
 final List<DartedCommand> commandsTree = [
@@ -219,12 +220,41 @@ final List<DartedCommand> commandsTree = [
     ],
   ),
 
+  // Templates command
+  DartedCommand(
+    name: 'templates',
+    helperDescription: 'Manage template cache',
+    callback: (_, __) => handleTemplatesStatus(),
+    subCommands: [
+      DartedCommand(
+        name: 'status',
+        helperDescription: 'Show template cache status',
+        callback: (_, __) => handleTemplatesStatus(),
+      ),
+      DartedCommand(
+        name: 'update',
+        helperDescription: 'Download/update templates from GitHub',
+        callback: (_, __) => handleTemplatesUpdate(),
+      ),
+      DartedCommand(
+        name: 'clear',
+        helperDescription: 'Clear the template cache',
+        callback: (_, __) => handleTemplatesClear(),
+      ),
+      DartedCommand(
+        name: 'path',
+        helperDescription: 'Show template cache path',
+        callback: (_, __) => handleTemplatesPath(),
+      ),
+    ],
+  ),
+
   // Version command
   DartedCommand(
     name: 'version',
     helperDescription: 'Show version information',
     callback: (_, __) {
-      print('Oracular CLI v2.0.0');
+      print('Oracular CLI v2.0.0');  // Keep in sync with pubspec.yaml
       print('Arcane Template System');
     },
   ),
