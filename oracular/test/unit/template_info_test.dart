@@ -168,7 +168,7 @@ void main() {
     });
 
     test('returns null for invalid input', () {
-      expect(TemplateTypeExtension.parse('6'), isNull);
+      expect(TemplateTypeExtension.parse('99'), isNull); // Out of range index
       expect(TemplateTypeExtension.parse('invalid'), isNull);
       expect(TemplateTypeExtension.parse(''), isNull);
     });

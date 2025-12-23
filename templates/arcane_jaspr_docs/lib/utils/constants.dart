@@ -7,11 +7,12 @@ class AppConstants {
 
   /// Site description for meta tags
   static const String siteDescription =
-      'Documentation for Arcane Jaspr - A Jaspr port of Arcane UI';
+      'Documentation for arcane_jaspr_docs';
 
   /// GitHub repository URL (leave empty to hide GitHub link)
   static const String githubUrl = '';
 
-  /// Base URL for the site
-  static const String baseUrl = '/';
+  /// Base URL for the site (for subdirectory hosting like GitHub Pages)
+  /// Use '' for root hosting, or '/project-name' for subdirectory hosting
+  static const String baseUrl = '';
 }

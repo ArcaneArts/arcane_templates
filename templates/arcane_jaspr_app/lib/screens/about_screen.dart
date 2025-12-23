@@ -1,81 +1,37 @@
 import 'package:arcane_jaspr/arcane_jaspr.dart';
 
+import '../components/app_header.dart';
 import '../utils/constants.dart';
 
 /// About screen - information about the application
 class AboutScreen extends StatelessComponent {
-  const AboutScreen({super.key});
+  final bool isDark;
+  final VoidCallback? onThemeToggle;
+
+  const AboutScreen({
+    super.key,
+    this.isDark = true,
+    this.onThemeToggle,
+  });
 
   @override
   Component build(BuildContext context) {
     return ArcaneDiv(
       styles: const ArcaneStyleData(
         minHeight: '100vh',
-        background: Background.background,
-        textColor: TextColor.primary,
-        fontFamily: FontFamily.sans,
+        display: Display.flex,
+        flexDirection: FlexDirection.column,
       ),
       children: [
         // Header
-        _Header(),
+        AppHeader(
+          isDark: isDark,
+          onThemeToggle: onThemeToggle,
+          currentPath: AppRoutes.about,
+        ),
 
         // Content
         _Content(),
-      ],
-    );
-  }
-}
-
-class _Header extends StatelessComponent {
-  const _Header();
-
-  @override
-  Component build(BuildContext context) {
-    return ArcaneDiv(
-      styles: const ArcaneStyleData(
-        padding: PaddingPreset.lg,
-        border: BorderPreset.subtle,
-      ),
-      children: [
-        ArcaneRow(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Logo/Brand
-            a(
-              href: AppRoutes.home,
-              [
-                ArcaneDiv(
-                  styles: const ArcaneStyleData(
-                    fontSize: FontSize.xl,
-                    fontWeight: FontWeight.bold,
-                    textColor: TextColor.primary,
-                  ),
-                  children: [ArcaneText('ArcaneJasprApp')],
-                ),
-              ],
-            ),
-
-            // Navigation
-            ArcaneRow(
-              style: const ArcaneStyleData(gap: Gap.lg),
-              children: [
-                a(href: AppRoutes.home, [
-                  ArcaneButton.ghost(
-                    label: 'Home',
-                    onPressed: () {},
-                  ),
-                ]),
-                a(href: AppRoutes.about, [
-                  ArcaneButton.ghost(
-                    label: 'About',
-                    onPressed: () {},
-                  ),
-                ]),
-              ],
-            ),
-          ],
-        ),
       ],
     );
   }
@@ -89,6 +45,7 @@ class _Content extends StatelessComponent {
     return ArcaneDiv(
       styles: const ArcaneStyleData(
         padding: PaddingPreset.sectionY,
+        flexGrow: 1,
       ),
       children: [
         ArcaneBox(
@@ -118,7 +75,7 @@ class _Content extends StatelessComponent {
                   ),
                   children: [
                     ArcaneText(
-                      'ArcaneJasprApp is a modern web application template built with Jaspr - the Dart web framework.',
+                      '${AppConstants.appName} is a modern web application template built with Jaspr - the Dart web framework.',
                     ),
                   ],
                 ),
@@ -190,7 +147,7 @@ class _ListItem extends StatelessComponent {
       children: [
         ArcaneDiv(
           styles: const ArcaneStyleData(
-            textColor: TextColor.brandPrimary,
+            textColor: TextColor.accent,
             fontWeight: FontWeight.bold,
           ),
           children: [ArcaneText('•')],

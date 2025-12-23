@@ -2,25 +2,26 @@ import 'package:arcane_jaspr/arcane_jaspr.dart';
 
 import '../utils/constants.dart';
 
-/// Documentation site header with navigation, search, and theme toggle
-class DocsHeader extends StatelessComponent {
+/// Shared application header with navigation and theme toggle
+class AppHeader extends StatelessComponent {
   final bool isDark;
   final VoidCallback? onThemeToggle;
+  final String currentPath;
 
-  const DocsHeader({
+  const AppHeader({
     super.key,
-    this.isDark = false,
+    this.isDark = true,
     this.onThemeToggle,
+    this.currentPath = '/',
   });
 
   @override
   Component build(BuildContext context) {
-    final base = AppConstants.baseUrl;
     return ArcaneBar(
       leading: [
-        // Logo/title link using ArcaneLink
+        // Logo/Brand link
         ArcaneLink(
-          href: '$base/',
+          href: AppRoutes.home,
           styles: const ArcaneStyleData(
             textDecoration: TextDecoration.none,
           ),
@@ -37,46 +38,18 @@ class DocsHeader extends StatelessComponent {
                   fontSize: FontSize.lg,
                   textColor: TextColor.primary,
                 ),
-                children: [ArcaneText(AppConstants.siteName)],
+                children: [ArcaneText(AppConstants.appName)],
               ),
             ],
           ),
         ),
       ],
       trailing: [
-        // Search bar using ArcaneSearchBar
-        ArcaneSearchBar(
-          id: 'docs-search',
-          resultsId: 'search-results',
-          placeholder: 'Search docs...',
-          width: '240px',
-          iconSize: IconSize.md,
-          styles: const ArcaneStyleData(
-            margin: MarginPreset.rightMd,
-          ),
-        ),
+        // Navigation links
+        _buildNavLink('Home', AppRoutes.home),
+        _buildNavLink('About', AppRoutes.about),
 
-        // Navigation links using ArcaneLink
-        ArcaneLink(
-          href: '$base/docs',
-          styles: const ArcaneStyleData(
-            textDecoration: TextDecoration.none,
-          ),
-          child: ArcaneButton.ghost(
-            label: 'Docs',
-            onPressed: () {},
-          ),
-        ),
-        ArcaneLink(
-          href: '$base/guides',
-          styles: const ArcaneStyleData(
-            textDecoration: TextDecoration.none,
-          ),
-          child: ArcaneButton.ghost(
-            label: 'Guides',
-            onPressed: () {},
-          ),
-        ),
+        // GitHub link (if configured)
         if (AppConstants.githubUrl.isNotEmpty)
           ArcaneLink.external(
             href: AppConstants.githubUrl,
@@ -89,14 +62,32 @@ class DocsHeader extends StatelessComponent {
             ),
           ),
 
-        // Theme toggle button using ArcaneIconButton
+        // Theme toggle button
         _buildThemeToggle(),
       ],
     );
   }
 
-  /// Theme toggle button that uses the layout state for switching themes
-  /// Uses ArcaneIconButton with ArcaneIcon for proper component structure
+  Component _buildNavLink(String label, String href) {
+    final isActive = currentPath == href;
+
+    return ArcaneLink(
+      href: href,
+      styles: const ArcaneStyleData(
+        textDecoration: TextDecoration.none,
+      ),
+      child: ArcaneButton.ghost(
+        label: label,
+        onPressed: () {},
+        styles: ArcaneStyleData(
+          textColor: isActive ? TextColor.accent : TextColor.onSurfaceVariant,
+          fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+        ),
+      ),
+    );
+  }
+
+  /// Theme toggle button with sun/moon icons
   Component _buildThemeToggle() {
     return ArcaneDiv(
       id: 'theme-toggle',

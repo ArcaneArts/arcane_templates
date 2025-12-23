@@ -4,6 +4,9 @@ library arcane_jaspr_app;
 // Export app component
 export 'app.dart';
 
+// Export components
+export 'components/app_header.dart';
+
 // Export routes
 export 'routes/app_router.dart';
 

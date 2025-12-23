@@ -7,18 +7,35 @@ import '../utils/constants.dart';
 
 /// Main router component that handles navigation
 class AppRouter extends StatelessComponent {
-  const AppRouter({super.key});
+  final bool isDark;
+  final VoidCallback? onThemeToggle;
+
+  const AppRouter({
+    super.key,
+    this.isDark = true,
+    this.onThemeToggle,
+  });
 
   @override
   Component build(BuildContext context) {
     verbose('Building AppRouter');
-    return const RouterOutlet();
+    return RouterOutlet(
+      isDark: isDark,
+      onThemeToggle: onThemeToggle,
+    );
   }
 }
 
 /// Router outlet that renders the appropriate screen based on path
 class RouterOutlet extends StatelessComponent {
-  const RouterOutlet({super.key});
+  final bool isDark;
+  final VoidCallback? onThemeToggle;
+
+  const RouterOutlet({
+    super.key,
+    this.isDark = true,
+    this.onThemeToggle,
+  });
 
   @override
   Component build(BuildContext context) {
@@ -28,11 +45,17 @@ class RouterOutlet extends StatelessComponent {
     switch (path) {
       case AppRoutes.about:
         navigation('Navigating to About');
-        return const AboutScreen();
+        return AboutScreen(
+          isDark: isDark,
+          onThemeToggle: onThemeToggle,
+        );
       case AppRoutes.home:
       default:
         navigation('Navigating to Home');
-        return const HomeScreen();
+        return HomeScreen(
+          isDark: isDark,
+          onThemeToggle: onThemeToggle,
+        );
     }
   }
 }
