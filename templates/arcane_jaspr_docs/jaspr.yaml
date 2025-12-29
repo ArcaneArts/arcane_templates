@@ -1,2 +1,2 @@
-# Jaspr configuration for static documentation site
-mode: static
+# Jaspr configuration for SPA documentation site
+mode: client

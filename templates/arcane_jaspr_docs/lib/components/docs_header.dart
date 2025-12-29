@@ -44,16 +44,17 @@ class DocsHeader extends StatelessComponent {
         ),
       ],
       trailing: [
-        // Search bar using ArcaneSearchBar
-        ArcaneSearchBar(
-          id: 'docs-search',
-          resultsId: 'search-results',
-          placeholder: 'Search docs...',
-          width: '240px',
-          iconSize: IconSize.md,
+        // Search bar using ArcaneSearch (updated SVG icons in 2.7.0)
+        ArcaneDiv(
           styles: const ArcaneStyleData(
             margin: MarginPreset.rightMd,
+            widthCustom: '240px',
           ),
+          children: [
+            ArcaneSearch(
+              placeholder: 'Search docs...',
+            ),
+          ],
         ),
 
         // Navigation links using ArcaneLink
@@ -89,45 +90,10 @@ class DocsHeader extends StatelessComponent {
             ),
           ),
 
-        // Theme toggle button using ArcaneIconButton
-        _buildThemeToggle(),
-      ],
-    );
-  }
-
-  /// Theme toggle button that uses the layout state for switching themes
-  /// Uses ArcaneIconButton with ArcaneIcon for proper component structure
-  Component _buildThemeToggle() {
-    return ArcaneDiv(
-      id: 'theme-toggle',
-      styles: const ArcaneStyleData(
-        display: Display.flex,
-        alignItems: AlignItems.center,
-        justifyContent: JustifyContent.center,
-        widthCustom: '40px',
-        heightCustom: '40px',
-        border: BorderPreset.subtle,
-        borderRadius: Radius.md,
-        background: Background.surface,
-        textColor: TextColor.primary,
-        cursor: Cursor.pointer,
-        transition: Transition.allFast,
-      ),
-      events: {
-        'click': (_) {
-          onThemeToggle?.call();
-        },
-      },
-      children: [
-        ArcaneDiv(
-          styles: const ArcaneStyleData(
-            display: Display.flex,
-            lineHeight: LineHeight.none,
-          ),
-          children: [
-            if (isDark) ArcaneIcon.sun(size: IconSize.lg),
-            if (!isDark) ArcaneIcon.moon(size: IconSize.lg),
-          ],
+        // Theme toggle using the new ArcaneThemeToggle component
+        ArcaneThemeToggle(
+          isDark: isDark,
+          onChanged: onThemeToggle != null ? (_) => onThemeToggle!() : null,
         ),
       ],
     );

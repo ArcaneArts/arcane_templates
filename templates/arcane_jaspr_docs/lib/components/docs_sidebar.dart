@@ -57,26 +57,29 @@ class DocsSidebar extends StatelessComponent {
           ],
         ),
 
-        // Navigation
-        ArcaneNav(
-          styles: const ArcaneStyleData(
-            padding: PaddingPreset.md,
-            flexGrow: 1,
-            overflowY: OverflowAxis.auto,
-          ),
-          children: [
-            // Getting Started section
-            _buildNavSection('Getting Started', [
-              _buildNavItem(label: 'Introduction', href: '/docs'),
-              _buildNavItem(label: 'Installation', href: '/docs/installation'),
-              _buildNavItem(label: 'Quick Start', href: '/docs/quick-start'),
-            ]),
+        // Navigation with custom scrollable area
+        ArcaneScrollArea(
+          maxHeight: 'calc(100vh - 100px)',
+          child: ArcaneNav(
+            styles: const ArcaneStyleData(
+              padding: PaddingPreset.md,
+              flexGrow: 1,
+            ),
+            children: [
+              // Getting Started section
+              _buildNavSection('Getting Started', [
+                _buildNavItem(label: 'Introduction', href: '/docs'),
+                _buildNavItem(
+                    label: 'Installation', href: '/docs/installation'),
+                _buildNavItem(label: 'Quick Start', href: '/docs/quick-start'),
+              ]),
 
-            // Guides section
-            _buildNavSection('Guides', [
-              _buildNavItem(label: 'Deployment', href: '/guides/deployment'),
-            ]),
-          ],
+              // Guides section
+              _buildNavSection('Guides', [
+                _buildNavItem(label: 'Deployment', href: '/guides/deployment'),
+              ]),
+            ],
+          ),
         ),
       ],
     );
@@ -138,7 +141,8 @@ class DocsSidebar extends StatelessComponent {
         padding: PaddingPreset.buttonSm,
         textColor: isActive ? TextColor.accent : TextColor.onSurfaceVariant,
         fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-        background: isActive ? Background.accentContainer : Background.transparent,
+        background:
+            isActive ? Background.accentContainer : Background.transparent,
         borderLeft: isActive ? BorderPreset.accent : BorderPreset.none,
         raw: isActive
             ? const {'border-left-width': '3px'}

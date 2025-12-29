@@ -56,29 +56,15 @@ class _Content extends StatelessComponent {
               crossAxisAlignment: CrossAxisAlignment.start,
               style: const ArcaneStyleData(gap: Gap.lg),
               children: [
-                // Page title
-                ArcaneDiv(
-                  styles: const ArcaneStyleData(
-                    fontSize: FontSize.xl3,
-                    fontWeight: FontWeight.bold,
-                    textColor: TextColor.primary,
-                  ),
-                  children: [ArcaneText('About')],
+                // Page title using ArcaneSectionHeader
+                ArcaneSectionHeader(
+                  heading: 'About',
+                  description:
+                      '${AppConstants.appName} is a modern web application template built with Jaspr - the Dart web framework.',
+                  align: TextAlign.left,
                 ),
 
-                // Description
-                ArcaneDiv(
-                  styles: const ArcaneStyleData(
-                    fontSize: FontSize.lg,
-                    textColor: TextColor.muted,
-                    lineHeight: LineHeight.relaxed,
-                  ),
-                  children: [
-                    ArcaneText(
-                      '${AppConstants.appName} is a modern web application template built with Jaspr - the Dart web framework.',
-                    ),
-                  ],
-                ),
+                // Description text
                 ArcaneDiv(
                   styles: const ArcaneStyleData(
                     fontSize: FontSize.lg,
@@ -97,66 +83,75 @@ class _Content extends StatelessComponent {
                 // Getting Started section
                 ArcaneDiv(
                   styles: const ArcaneStyleData(
-                    fontSize: FontSize.xl2,
-                    fontWeight: FontWeight.bold,
-                    textColor: TextColor.primary,
                     margin: MarginPreset.topXl,
                   ),
-                  children: [ArcaneText('Getting Started')],
+                  children: [
+                    ArcaneSectionHeader(
+                      label: 'Quick Start',
+                      heading: 'Getting Started',
+                      align: TextAlign.left,
+                    ),
+                  ],
                 ),
 
+                // Getting started checklist using ArcaneCheckList
                 ArcaneCard(
                   child: ArcaneDiv(
                     styles: const ArcaneStyleData(
                       padding: PaddingPreset.lg,
                     ),
                     children: [
-                      _ListItem(
-                          content:
-                              'Run jaspr serve to start the development server'),
-                      _ListItem(content: 'Edit screens in lib/screens/'),
-                      _ListItem(
-                          content: 'Add routes in lib/routes/app_router.dart'),
-                      _ListItem(
-                          content: 'Build for production with jaspr build'),
+                      ArcaneCheckList(
+                        items: [
+                          'Run jaspr serve to start the development server',
+                          'Edit screens in lib/screens/',
+                          'Add routes in lib/routes/app_router.dart',
+                          'Build for production with jaspr build',
+                        ],
+                        iconStyle: CheckListIconStyle.arrow,
+                      ),
                     ],
                   ),
+                ),
+
+                // Tech stack section
+                ArcaneDiv(
+                  styles: const ArcaneStyleData(
+                    margin: MarginPreset.topXl,
+                  ),
+                  children: [
+                    ArcaneSectionHeader(
+                      label: 'Built With',
+                      heading: 'Tech Stack',
+                      align: TextAlign.left,
+                    ),
+                  ],
+                ),
+
+                // Tech stack badges
+                ArcaneRow(
+                  style: const ArcaneStyleData(
+                    gap: Gap.sm,
+                    flexWrap: FlexWrap.wrap,
+                  ),
+                  children: [
+                    ArcaneStatusBadge(
+                      label: 'Dart',
+                      variant: StatusBadgeVariant.info,
+                    ),
+                    ArcaneStatusBadge(
+                      label: 'Jaspr',
+                      variant: StatusBadgeVariant.success,
+                    ),
+                    ArcaneStatusBadge(
+                      label: 'Arcane UI',
+                      variant: StatusBadgeVariant.info,
+                    ),
+                  ],
                 ),
               ],
             ),
           ],
-        ),
-      ],
-    );
-  }
-}
-
-class _ListItem extends StatelessComponent {
-  final String content;
-
-  const _ListItem({required this.content});
-
-  @override
-  Component build(BuildContext context) {
-    return ArcaneRow(
-      style: const ArcaneStyleData(
-        gap: Gap.sm,
-        margin: MarginPreset.bottomSm,
-      ),
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ArcaneDiv(
-          styles: const ArcaneStyleData(
-            textColor: TextColor.accent,
-            fontWeight: FontWeight.bold,
-          ),
-          children: [ArcaneText('•')],
-        ),
-        ArcaneDiv(
-          styles: const ArcaneStyleData(
-            textColor: TextColor.muted,
-          ),
-          children: [ArcaneText(content)],
         ),
       ],
     );

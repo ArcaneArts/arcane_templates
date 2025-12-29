@@ -47,22 +47,31 @@ class ArcaneDocsLayout extends PageLayoutBase {
   Iterable<Component> buildHead(Page page) sync* {
     yield* super.buildHead(page);
     yield link(rel: 'icon', type: 'image/x-icon', href: '/favicon.ico');
-    yield meta(name: 'viewport', content: 'width=device-width, initial-scale=1');
+    yield meta(
+        name: 'viewport', content: 'width=device-width, initial-scale=1');
 
     // Generate CSS variables for ALL themes (dark and light modes)
     final cssBuffer = StringBuffer();
 
-    // Default theme (green dark) for :root
-    final defaultTheme =
-        ArcaneTheme.green.copyWith(themeMode: ThemeMode.dark);
+    // Default theme (green dark) for :root with uniform backgrounds
+    final defaultTheme = ArcaneTheme.green.copyWith(
+      themeMode: ThemeMode.dark,
+      uniformBackgrounds: true,
+    );
     cssBuffer.writeln(':root {');
     cssBuffer.writeln(_generateThemeCss(defaultTheme));
     cssBuffer.writeln('}');
 
     // Generate CSS for each theme in both dark and light modes
     for (final (id, _, theme) in _allThemes) {
-      final darkTheme = theme.copyWith(themeMode: ThemeMode.dark);
-      final lightTheme = theme.copyWith(themeMode: ThemeMode.light);
+      final darkTheme = theme.copyWith(
+        themeMode: ThemeMode.dark,
+        uniformBackgrounds: true,
+      );
+      final lightTheme = theme.copyWith(
+        themeMode: ThemeMode.light,
+        uniformBackgrounds: true,
+      );
 
       cssBuffer.writeln('html.theme-$id-dark, .theme-$id-dark {');
       cssBuffer.writeln(_generateThemeCss(darkTheme));
@@ -146,42 +155,25 @@ class _ThemedDocsPageState extends State<_ThemedDocsPage> {
   Component build(BuildContext context) {
     final theme = ArcaneTheme.green.copyWith(
       themeMode: _isDark ? ThemeMode.dark : ThemeMode.light,
+      uniformBackgrounds: true, // Sleek design with unified backgrounds
     );
 
-    // Don't use ArcaneApp - it applies inline CSS that overrides class-based theming
-    // Instead use a simple wrapper that respects CSS variables from <head>
-    return ArcaneThemeProvider(
+    // Use ArcaneApp wrapper with automatic fallback scripts for static sites
+    return ArcaneApp(
       theme: theme,
-      child: div(
-        id: 'arcane-root',
-        styles: const Styles(raw: {
-          'min-height': '100vh',
-          'background-color': 'var(--arcane-surface)',
-          'color': 'var(--arcane-on-surface)',
-          'font-family':
-              '"GeistSans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-          '-webkit-font-smoothing': 'antialiased',
-          '-moz-osx-font-smoothing': 'grayscale',
-        }),
-        [
-          _buildPageLayout(),
-          _buildScripts(),
-        ],
-      ),
+      includeFallbackScripts: true, // Enable JS fallbacks for static sites
+      child: _buildPageLayout(),
     );
   }
 
   /// Main page layout structure
   Component _buildPageLayout() {
-    return div(
-      styles: const Styles(raw: {
-        'display': 'flex',
-        'min-height': '100vh',
-        'background': 'var(--arcane-surface)',
-        'color': 'var(--arcane-on-surface)',
-        'font-family': 'inherit',
-      }),
-      [
+    return ArcaneDiv(
+      styles: const ArcaneStyleData(
+        display: Display.flex,
+        minHeight: '100vh',
+      ),
+      children: [
         DocsSidebar(currentPath: component.currentPath),
         _buildMainArea(),
       ],
@@ -260,20 +252,11 @@ class _ThemedDocsPageState extends State<_ThemedDocsPage> {
     );
   }
 
-  /// Table of contents sidebar
+  /// Table of contents sidebar using ArcaneScrollRail for sticky behavior
   Component _buildTableOfContents() {
-    return ArcaneDiv(
-      styles: const ArcaneStyleData(
-        widthCustom: '240px',
-        flexShrink: 0,
-        position: Position.sticky,
-        overflow: Overflow.auto,
-        raw: {
-          'top': '80px',
-          'align-self': 'flex-start',
-          'max-height': 'calc(100vh - 100px)',
-        },
-      ),
+    return ArcaneScrollRail(
+      width: '240px',
+      topOffset: '80px',
       children: [
         ArcaneDiv(
           styles: const ArcaneStyleData(
@@ -296,213 +279,13 @@ class _ThemedDocsPageState extends State<_ThemedDocsPage> {
               ),
               children: [ArcaneText('On this page')],
             ),
-            div(classes: 'toc-content', [component.toc!.build()]),
+            ArcaneScrollArea(
+              maxHeight: 'calc(100vh - 200px)',
+              child: div(classes: 'toc-content', [component.toc!.build()]),
+            ),
           ],
         ),
       ],
     );
-  }
-
-  /// JavaScript for static site functionality
-  Component _buildScripts() {
-    return script(content: '''
-      document.addEventListener('DOMContentLoaded', function() {
-        // ===== THEME UTILITIES =====
-        function getCurrentTheme() {
-          return localStorage.getItem('arcane-theme-preset') || 'green';
-        }
-        function getCurrentMode() {
-          return localStorage.getItem('arcane-theme-mode') || 'dark';
-        }
-        function setTheme(preset, mode) {
-          localStorage.setItem('arcane-theme-preset', preset);
-          localStorage.setItem('arcane-theme-mode', mode);
-          document.documentElement.className = 'theme-' + preset + '-' + mode;
-          updateModeToggleIcon(mode);
-          updateThemeButtons(preset);
-        }
-        function updateModeToggleIcon(mode) {
-          var themeToggle = document.getElementById('theme-toggle');
-          if (!themeToggle) return;
-          var iconContainer = themeToggle.querySelector('div > div');
-          if (iconContainer) {
-            if (mode === 'dark') {
-              iconContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
-            } else {
-              iconContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
-            }
-          }
-        }
-        function updateThemeButtons(activePreset) {
-          document.querySelectorAll('[data-theme-preset]').forEach(function(btn) {
-            var isActive = btn.dataset.themePreset === activePreset;
-            btn.style.outline = isActive ? '2px solid var(--arcane-accent)' : 'none';
-            btn.style.outlineOffset = isActive ? '2px' : '0';
-          });
-        }
-
-        // ===== THEME MODE TOGGLE (sun/moon button) =====
-        var themeToggle = document.getElementById('theme-toggle');
-        if (themeToggle) {
-          themeToggle.addEventListener('click', function() {
-            var currentMode = getCurrentMode();
-            var newMode = currentMode === 'dark' ? 'light' : 'dark';
-            setTheme(getCurrentTheme(), newMode);
-          });
-        }
-
-        // ===== THEME PRESET BUTTONS =====
-        document.querySelectorAll('[data-theme-preset]').forEach(function(btn) {
-          btn.addEventListener('click', function() {
-            var preset = this.dataset.themePreset;
-            setTheme(preset, getCurrentMode());
-          });
-        });
-
-        // Initialize button states
-        updateThemeButtons(getCurrentTheme());
-
-        // ===== SEARCH FUNCTIONALITY =====
-        var searchInput = document.getElementById('docs-search');
-        var searchResults = document.getElementById('search-results');
-
-        // Build search index from sidebar navigation
-        var searchIndex = [];
-        document.querySelectorAll('nav a').forEach(function(link) {
-          var text = link.textContent.trim();
-          var href = link.getAttribute('href');
-          if (text && href && href.includes('/docs')) {
-            // Extract category from URL
-            var parts = href.split('/');
-            var category = parts.length > 2 ? parts[2] : 'docs';
-            category = category.charAt(0).toUpperCase() + category.slice(1).replace(/-/g, ' ');
-
-            searchIndex.push({
-              title: text,
-              href: href,
-              category: category,
-              searchText: text.toLowerCase()
-            });
-          }
-        });
-
-        function showResults(results) {
-          if (!searchResults) return;
-
-          if (results.length === 0) {
-            searchResults.innerHTML = '<div style="padding: 12px; color: var(--arcane-on-surface-variant); text-align: center;">No results found</div>';
-            searchResults.style.display = 'block';
-            return;
-          }
-
-          var html = results.map(function(item) {
-            return '<a href="' + item.href + '" style="display: block; padding: 10px 12px; text-decoration: none; border-bottom: 1px solid var(--arcane-outline-variant); transition: background 0.15s;">' +
-              '<div style="font-weight: 500; color: var(--arcane-on-surface);">' + item.title + '</div>' +
-              '<div style="font-size: 12px; color: var(--arcane-on-surface-variant);">' + item.category + '</div>' +
-            '</a>';
-          }).join('');
-
-          searchResults.innerHTML = html;
-          searchResults.style.display = 'block';
-
-          // Add hover effects
-          searchResults.querySelectorAll('a').forEach(function(link) {
-            link.addEventListener('mouseenter', function() {
-              this.style.background = 'var(--arcane-surface-variant)';
-            });
-            link.addEventListener('mouseleave', function() {
-              this.style.background = 'transparent';
-            });
-          });
-        }
-
-        function hideResults() {
-          if (searchResults) {
-            searchResults.style.display = 'none';
-          }
-        }
-
-        if (searchInput) {
-          searchInput.addEventListener('input', function() {
-            var query = this.value.toLowerCase().trim();
-
-            if (query.length < 2) {
-              hideResults();
-              return;
-            }
-
-            var results = searchIndex.filter(function(item) {
-              return item.searchText.includes(query);
-            }).slice(0, 10);
-
-            showResults(results);
-          });
-
-          searchInput.addEventListener('focus', function() {
-            if (this.value.length >= 2) {
-              var query = this.value.toLowerCase().trim();
-              var results = searchIndex.filter(function(item) {
-                return item.searchText.includes(query);
-              }).slice(0, 10);
-              showResults(results);
-            }
-          });
-
-          // Close results when clicking outside
-          document.addEventListener('click', function(e) {
-            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-              hideResults();
-            }
-          });
-
-          // Keyboard navigation
-          searchInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-              hideResults();
-              this.blur();
-            }
-          });
-        }
-
-        // ===== CODE BLOCK COPY BUTTONS =====
-        document.querySelectorAll('pre').forEach(function(pre) {
-          var wrapper = document.createElement('div');
-          wrapper.className = 'code-block-wrapper';
-          pre.parentNode.insertBefore(wrapper, pre);
-          wrapper.appendChild(pre);
-
-          var copyBtn = document.createElement('button');
-          copyBtn.className = 'copy-code-btn';
-          copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
-          copyBtn.title = 'Copy code';
-          wrapper.appendChild(copyBtn);
-
-          copyBtn.addEventListener('click', function() {
-            var code = pre.querySelector('code') || pre;
-            navigator.clipboard.writeText(code.textContent).then(function() {
-              copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-              copyBtn.classList.add('copied');
-              setTimeout(function() {
-                copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
-                copyBtn.classList.remove('copied');
-              }, 2000);
-            });
-          });
-        });
-
-        // ===== BUTTON CLICK FEEDBACK =====
-        document.querySelectorAll('.arcane-button, button[class*="arcane"]').forEach(function(btn) {
-          btn.addEventListener('mousedown', function() {
-            this.style.transform = 'scale(0.98)';
-          });
-          btn.addEventListener('mouseup', function() {
-            this.style.transform = 'scale(1)';
-          });
-          btn.addEventListener('mouseleave', function() {
-            this.style.transform = 'scale(1)';
-          });
-        });
-      });
-    ''');
   }
 }

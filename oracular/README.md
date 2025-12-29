@@ -86,17 +86,43 @@ oracular config path              # Show config file path
 
 ## Templates
 
+### Flutter Templates (Native Apps)
+
 | # | Name | Type | Platforms | Description |
 |---|------|------|-----------|-------------|
 | 1 | Basic Arcane | Flutter | All | Multi-platform app with Arcane UI |
 | 2 | Beamer Navigation | Flutter | All | Declarative routing with Beamer |
 | 3 | Desktop Tray | Flutter | Desktop | System tray/menu bar app |
-| 4 | Dart CLI | Dart | - | Command-line interface |
+
+### Jaspr Templates (Web)
+
+| # | Name | Type | Output | Description |
+|---|------|------|--------|-------------|
+| 5 | Jaspr Web App | Jaspr | SPA | Interactive web app with Arcane Jaspr 2.7.0 |
+| 6 | Jaspr Docs | Jaspr | Static | Documentation site with markdown, SEO-ready |
+
+### Dart Templates
+
+| # | Name | Type | Description |
+|---|------|------|-------------|
+| 4 | Dart CLI | Dart | Command-line interface application |
 
 ### Additional Packages
 
 - **Models Package** (`<app>_models`) - Shared data models with Artifact serialization
 - **Server App** (`<app>_server`) - Shelf REST API with FireCrud integration
+
+## Platform Comparison
+
+See the full [Platform Comparison Guide](../docs/PLATFORM_COMPARISON.md) for detailed pros/cons between Flutter and Jaspr.
+
+| Consideration | Flutter + Arcane | Jaspr + Arcane Jaspr |
+|---------------|------------------|----------------------|
+| Best For | Native apps, offline-first | Websites, SEO, static sites |
+| Output | Native binaries | HTML/CSS/JS |
+| SEO Support | Limited | Full |
+| Bundle Size | 2-5MB+ | 100-500KB |
+| Platforms | iOS, Android, Desktop, Web | Web only |
 
 ## Development
 

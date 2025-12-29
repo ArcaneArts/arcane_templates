@@ -23,10 +23,13 @@ Project scaffolding and script runner for Arcane-based Flutter and Dart applicat
 Oracular/
 ├── oracular/          Dart CLI tool
 ├── oracular_gui/      Flutter GUI wizard
+├── docs/              Documentation and guides
 └── templates/         Project templates (editable)
     ├── arcane_app/           Basic multi-platform Flutter app
     ├── arcane_beamer_app/    Beamer navigation Flutter app
     ├── arcane_dock_app/      Desktop system tray app
+    ├── arcane_jaspr_app/     Jaspr web application
+    ├── arcane_jaspr_docs/    Jaspr static documentation site
     ├── arcane_cli_app/       Dart CLI application
     ├── arcane_models/        Shared data models package
     └── arcane_server/        Shelf-based REST API server
@@ -106,13 +109,20 @@ oracular deploy server-build      # Build Docker image
 
 ## Templates
 
-### Flutter Templates
+### Flutter Templates (Native Apps)
 
 | Template | Platforms | Description |
 |----------|-----------|-------------|
 | Basic Arcane | All | Multi-platform app with Arcane UI |
 | Beamer Navigation | All | Declarative routing with Beamer |
 | Desktop Tray | Desktop | System tray/menu bar application |
+
+### Jaspr Templates (Web)
+
+| Template | Output | Description |
+|----------|--------|-------------|
+| Jaspr Web App | SPA | Interactive web application with Arcane Jaspr |
+| Jaspr Docs | Static | Documentation site with markdown support |
 
 ### Dart Templates
 
@@ -124,6 +134,16 @@ oracular deploy server-build      # Build Docker image
 
 - **Models Package** - Shared data models for client and server
 - **Server App** - Shelf-based REST API with Firebase integration
+
+## Choosing Between Flutter and Jaspr
+
+Not sure which platform to use? See our comprehensive [Platform Comparison Guide](docs/PLATFORM_COMPARISON.md) for detailed pros/cons analysis.
+
+**Quick Decision:**
+- Need native mobile/desktop apps? Use **Flutter + Arcane**
+- Building a website with SEO requirements? Use **Jaspr + Arcane Jaspr**
+- Want fast initial page loads? Use **Jaspr + Arcane Jaspr**
+- Need offline-first functionality? Use **Flutter + Arcane**
 
 ## Script Runner Examples
 
