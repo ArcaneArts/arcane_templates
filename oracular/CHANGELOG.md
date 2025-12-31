@@ -1,3 +1,11 @@
+## x.x.x
+
+### Added
+- New `oracular gitignore` command to add the standard `.gitignore` to any project
+  - Use `--force` or `-f` to overwrite an existing `.gitignore`
+- Comprehensive `.gitignore` added to all templates with Jaspr support
+- Jaspr-specific ignores: `.jaspr/`, `web/main.dart.js`, `web/main.dart.js.deps`, `web/main.dart.js.map`, `web/main.dart.mjs`
+
 ## 2.2.2
 
 ### Fixed

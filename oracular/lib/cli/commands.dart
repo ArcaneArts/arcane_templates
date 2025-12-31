@@ -4,6 +4,7 @@ import 'handlers/check_handlers.dart';
 import 'handlers/config_handlers.dart';
 import 'handlers/create_handlers.dart';
 import 'handlers/deploy_handlers.dart';
+import 'handlers/gitignore_handlers.dart';
 import 'handlers/script_handlers.dart';
 import 'handlers/templates_handlers.dart';
 
@@ -227,6 +228,16 @@ final List<DartedCommand> commandsTree = [
         callback: (_, __) => handleTemplatesPath(),
       ),
     ],
+  ),
+
+  // Gitignore command
+  DartedCommand(
+    name: 'gitignore',
+    helperDescription: 'Add standard .gitignore to current directory',
+    flags: [
+      DartedFlag(name: 'force', abbreviation: 'f'),
+    ],
+    callback: (args, flags) => handleGitignore(args ?? {}, _boolToMap(flags)),
   ),
 
   // Version command

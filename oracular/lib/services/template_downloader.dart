@@ -31,6 +31,9 @@ class TemplateDownloader {
   /// Get the version file path
   static String get versionFile => p.join(cacheDir, _versionFileName);
 
+  /// Get the gitignore file path
+  static String get gitignoreFile => p.join(cacheDir, 'gitignore.gitignore');
+
   /// Check if templates are cached locally
   static bool get hasCachedTemplates {
     final Directory dir = Directory(templatesDir);
@@ -140,9 +143,17 @@ class TemplateDownloader {
     // Extract only the templates/ folder from the archive
     // Archive structure: oracular-master/templates/...
     final String archivePrefix = '$_repoName-$_branch/templates/';
+    final String gitignoreFileName = '$_repoName-$_branch/gitignore.gitignore';
 
     int extractedCount = 0;
     for (final ArchiveFile file in archive) {
+      // Extract gitignore.gitignore
+      if (file.name == gitignoreFileName && file.isFile) {
+        await File(gitignoreFile).writeAsBytes(file.content as List<int>);
+        extractedCount++;
+        continue;
+      }
+
       if (!file.name.startsWith(archivePrefix)) continue;
 
       // Get relative path within templates/
