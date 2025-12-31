@@ -1,3 +1,8 @@
+## 2.2.2
+
+### Fixed
+- Template download failing due to case sensitivity in GitHub archive prefix (`oracular-master` vs `Oracular-master`)
+
 ## 2.2.0
 
 - **Template Updates - arcane_jaspr_docs**:

@@ -227,3 +227,11 @@ node_modules/
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+.firebase/
+
+# Jaspr related
+.jaspr/
+web/main.dart.js
+web/main.dart.js.deps
+web/main.dart.js.map
+web/main.dart.mjs

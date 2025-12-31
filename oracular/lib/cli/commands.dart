@@ -4,7 +4,6 @@ import 'handlers/check_handlers.dart';
 import 'handlers/config_handlers.dart';
 import 'handlers/create_handlers.dart';
 import 'handlers/deploy_handlers.dart';
-import 'handlers/gui_handlers.dart';
 import 'handlers/script_handlers.dart';
 import 'handlers/templates_handlers.dart';
 
@@ -176,25 +175,6 @@ final List<DartedCommand> commandsTree = [
         name: 'path',
         helperDescription: 'Show configuration file path',
         callback: (_, __) => handleConfigPath(),
-      ),
-    ],
-  ),
-
-  // GUI command
-  DartedCommand(
-    name: 'gui',
-    helperDescription: 'Launch the Oracular GUI wizard',
-    arguments: [DartedArgument(name: 'platform', abbreviation: 'p')],
-    flags: [DartedFlag(name: 'release', abbreviation: 'r')],
-    callback: (args, flags) => handleGuiLaunch(args ?? {}, _boolToMap(flags)),
-    subCommands: [
-      DartedCommand(
-        name: 'build',
-        helperDescription: 'Build the GUI for distribution',
-        arguments: [
-          DartedArgument(name: 'platform', abbreviation: 'p', defaultValue: 'macos'),
-        ],
-        callback: (args, flags) => handleGuiBuild(args ?? {}, _boolToMap(flags)),
       ),
     ],
   ),

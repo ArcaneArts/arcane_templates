@@ -22,7 +22,6 @@ Project scaffolding and script runner for Arcane-based Flutter and Dart applicat
 ```
 Oracular/
 ├── oracular/          Dart CLI tool
-├── oracular_gui/      Flutter GUI wizard
 ├── docs/              Documentation and guides
 └── templates/         Project templates (editable)
     ├── arcane_app/           Basic multi-platform Flutter app
@@ -47,9 +46,6 @@ dart pub global activate oracular
 # Interactive wizard
 oracular
 
-# Launch GUI wizard
-oracular gui
-
 # Create project directly
 oracular create app --name my_app --org com.example
 ```
@@ -60,7 +56,6 @@ oracular create app --name my_app --org com.example
 
 ```bash
 oracular                          # Interactive wizard
-oracular gui                      # Launch GUI wizard
 oracular create app               # Create project with prompts
 oracular create templates         # List available templates
 ```
@@ -169,9 +164,7 @@ oracular scripts exec pi          # pod_install
 
 ## Development
 
-See individual package READMEs:
-- [CLI Development](oracular/README.md)
-- [GUI Development](oracular_gui/README.md)
+See the [CLI Development](oracular/README.md) README.
 
 ## License
 

@@ -9,7 +9,7 @@ import 'package:path/path.dart' as p;
 class TemplateDownloader {
   /// GitHub repository for templates
   static const String _repoOwner = 'ArcaneArts';
-  static const String _repoName = 'oracular';
+  static const String _repoName = 'Oracular';
   static const String _branch = 'master';
 
   /// Local cache directory name

@@ -1,10 +1,10 @@
 ```
-██████╗ ██╗     ██╗   ██╗███╗   ██╗██████╗ ███████╗██████╗ ██╗     ███████╗██╗  ██╗     ██████╗██╗     ██╗
-██╔══██╗██║     ██║   ██║████╗  ██║██╔══██╗██╔════╝██╔══██╗██║     ██╔════╝╚██╗██╔╝    ██╔════╝██║     ██║
-██████╔╝██║     ██║   ██║██╔██╗ ██║██║  ██║█████╗  ██████╔╝██║     █████╗   ╚███╔╝     ██║     ██║     ██║
-██╔══██╗██║     ██║   ██║██║╚██╗██║██║  ██║██╔══╝  ██╔══██╗██║     ██╔══╝   ██╔██╗     ██║     ██║     ██║
-██████╔╝███████╗╚██████╔╝██║ ╚████║██████╔╝███████╗██║  ██║███████╗███████╗██╔╝ ██╗    ╚██████╗███████╗██║
-╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚═════╝ ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝     ╚═════╝╚══════╝╚═╝
+ ██████╗ ██████╗  █████╗  ██████╗██╗   ██╗██╗      █████╗ ██████╗
+██╔═══██╗██╔══██╗██╔══██╗██╔════╝██║   ██║██║     ██╔══██╗██╔══██╗
+██║   ██║██████╔╝███████║██║     ██║   ██║██║     ███████║██████╔╝
+██║   ██║██╔══██╗██╔══██║██║     ██║   ██║██║     ██╔══██║██╔══██╗
+╚██████╔╝██║  ██║██║  ██║╚██████╗╚██████╔╝███████╗██║  ██║██║  ██║
+ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝
 ```
 
 Command-line interface for Arcane project scaffolding and script running.
@@ -21,7 +21,6 @@ dart pub global activate oracular
 
 ```bash
 oracular                          # Interactive wizard
-oracular gui                      # Launch GUI wizard
 oracular create app               # Create new project
 oracular create templates         # List available templates
 ```
@@ -213,7 +212,6 @@ lib/
 │   ├── config_command.dart     Configuration management
 │   ├── create_command.dart     Project creation
 │   ├── deploy_command.dart     Firebase/server deployment
-│   ├── gui_command.dart        GUI launcher
 │   └── script_command.dart     Script runner
 ├── services/                Business logic
 │   ├── script_runner.dart      Pubspec script execution
