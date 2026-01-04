@@ -126,10 +126,15 @@ class ProjectCreator {
       return false;
     }
 
-    // Delete the generated lib folder to replace with template
+    // Delete the generated lib and example folders to replace with template
     final Directory libDir = Directory(p.join(projectPath, 'lib'));
     if (libDir.existsSync()) {
       await libDir.delete(recursive: true);
+    }
+
+    final Directory exampleDir = Directory(p.join(projectPath, 'example'));
+    if (exampleDir.existsSync()) {
+      await exampleDir.delete(recursive: true);
     }
 
     success('Jaspr app created at: $projectPath');
@@ -167,10 +172,15 @@ class ProjectCreator {
       return false;
     }
 
-    // Delete the generated lib folder to replace with template
+    // Delete the generated lib and example folders to replace with template
     final libDir = Directory(p.join(projectPath, 'lib'));
     if (libDir.existsSync()) {
       await libDir.delete(recursive: true);
+    }
+
+    final exampleDir = Directory(p.join(projectPath, 'example'));
+    if (exampleDir.existsSync()) {
+      await exampleDir.delete(recursive: true);
     }
 
     success('Models package created at: $projectPath');

@@ -6,6 +6,9 @@
 - Comprehensive `.gitignore` added to all templates with Jaspr support
 - Jaspr-specific ignores: `.jaspr/`, `web/main.dart.js`, `web/main.dart.js.deps`, `web/main.dart.js.map`, `web/main.dart.mjs`
 
+### Fixed
+- Jaspr and models package creation now deletes the auto-generated `example/` folder
+
 ## 2.2.2
 
 ### Fixed
