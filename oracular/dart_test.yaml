@@ -1,0 +1,5 @@
+# Test configuration for Oracular
+# See: https://github.com/dart-lang/test/blob/master/pkgs/test/doc/configuration.md
+
+# Default concurrency for tests
+concurrency: 4

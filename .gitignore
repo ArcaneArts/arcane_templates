@@ -207,6 +207,8 @@ desktop.ini
 *.key
 secrets.json
 credentials.json
+*-service-account.json
+service-account*.json
 
 # Logs & debug
 npm-debug.log*
